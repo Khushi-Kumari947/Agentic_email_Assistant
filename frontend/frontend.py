@@ -3,11 +3,10 @@ import requests
 import json
 import pandas as pd
 from datetime import datetime
-import os
-import time
 import re
-from datetime import datetime, timedelta
-import pytz
+from datetime import datetime
+import os
+from pathlib import Path
 
 # Page configuration
 st.set_page_config(
@@ -494,11 +493,12 @@ def get_stats():
         pass
     return None
 
-def list_documents():
+def list_documents(docs_path="backend/documents"):
     """List documents in the documents folder"""
-    docs_dir = "backend/documents"
-    if os.path.exists(docs_dir):
-        return [f for f in os.listdir(docs_dir) if f.endswith(('.pdf', '.docx', '.txt'))]
+    docs_dir = Path(docs_path)
+    if docs_dir.exists():
+        return [f.name for f in docs_dir.iterdir() 
+                if f.suffix.lower() in ('.pdf', '.docx', '.txt')]
     return []
 
 def get_confidence_class(score):
