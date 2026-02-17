@@ -40,7 +40,7 @@ st.markdown("""
     /* Main header styling */
     .main-header {
         font-size: 2.5rem;
-        color: #FFFFFF !important;
+        color: #1E88E5 !important;
         text-align: center;
         margin-bottom: 2rem;
         font-weight: 700;
@@ -66,7 +66,7 @@ st.markdown("""
     /* Form labels - BLACK */
     .stTextInput label, .stTextArea label {
         font-weight: 600 !important;
-        color: #000000 !important;
+        color: #C3BFDE !important;
         font-size: 1rem !important;
         margin-bottom: 0.3rem !important;
     }
