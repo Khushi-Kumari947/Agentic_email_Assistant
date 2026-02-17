@@ -24,8 +24,8 @@ st.set_page_config(
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
 # Optional: Add a check to show which environment you're in
-if "localhost" in API_BASE_URL:
-    st.sidebar.info("🌐 Connected to LOCAL backend")
+if "localhost" in API_BASE_URL or "ngrok" in API_BASE_URL:
+    st.sidebar.info(f"🌐 Connected to LOCAL backend via tunnel")
 else:
     st.sidebar.success(f"🌐 Connected to PRODUCTION backend")
 
