@@ -63,15 +63,16 @@ st.markdown("""
         color: inherit !important;
     }
     
-    /* Form labels - RESTORED TO PREVIOUS WORKING STATE */
+    /* Form labels -  */
     .stTextInput label, .stTextArea label {
         font-weight: 600 !important;
         color: #C3BFDE !important;
         font-size: 1rem !important;
+        font-weight: 400;
         margin-bottom: 0.3rem !important;
     }
     
-    /* Input fields - RESTORED TO PREVIOUS WORKING STATE */
+    /* Input fields - */
     .stTextInput input, .stTextArea textarea {
         border-radius: 8px !important;
         border: 1px solid #CCCCCC !important;
