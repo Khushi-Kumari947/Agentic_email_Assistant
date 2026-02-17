@@ -107,65 +107,25 @@ st.markdown("""
         background: #1565C0 !important;
     }
     
-    /* Response Container - NEW AND IMPROVED */
+    /* Response Container - UPDATED */
     .response-container {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 16px;
-        padding: 2px;
-        margin-top: 1rem;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
-    }
-    
-    .response-inner {
         background: white;
-        border-radius: 14px;
+        border-radius: 12px;
         padding: 1.5rem;
-    }
-    
-    .response-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid #f0f0f0;
-    }
-    
-    .response-icon {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-    }
-    
-    .response-title {
-        font-weight: 600;
-        color: #333;
-        font-size: 1.1rem;
+        margin-top: 1rem;
+        border: 1px solid #E0E0E0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     
     .response-message {
-        background: #F8F9FF;
+        background: #F8F9FA;
         padding: 1.2rem;
-        border-radius: 12px;
-        border-left: 4px solid #667eea;
+        border-radius: 8px;
+        border-left: 4px solid #1E88E5;
         color: #333;
         font-size: 0.95rem;
         line-height: 1.6;
-        margin: 0.5rem 0;
-    }
-    
-    .response-footer {
-        margin-top: 1rem;
-        text-align: right;
-        color: #888;
-        font-size: 0.85rem;
-        font-style: italic;
+        margin: 0;
     }
     
     /* Old email preview - kept for history page */
@@ -245,16 +205,6 @@ st.markdown("""
         border-radius: 16px;
         display: inline-block;
         border: 1px solid #EF9A9A;
-    }
-    
-    /* Retrieved docs */
-    .retrieved-docs {
-        background: #F5F5F5;
-        padding: 0.75rem;
-        border-radius: 6px;
-        border-left: 3px solid #FFA000;
-        margin: 0.5rem 0;
-        font-size: 0.9rem;
     }
     
     /* Info box */
@@ -493,13 +443,11 @@ def main():
                             badge_class = get_category_badge(category)
                             display_name = get_category_display(category)
                             
-                            st.markdown(f'<span class="category-badge {badge_class}">{display_name}</span>', unsafe_allow_html=True)
-                            st.markdown(f'<span class="{get_confidence_class(confidence)}">Confidence: {confidence:.1%}</span>', unsafe_allow_html=True)
-                            
-                            if response.get('retrieved_docs'):
-                                with st.expander("📚 Retrieved Documents"):
-                                    for doc in response['retrieved_docs']:
-                                        st.markdown(f'<div class="retrieved-docs">📄 {doc.get("result", "")[:150]}...</div>', unsafe_allow_html=True)
+                            col_badge, col_conf = st.columns([1, 1])
+                            with col_badge:
+                                st.markdown(f'<span class="category-badge {badge_class}">{display_name}</span>', unsafe_allow_html=True)
+                            with col_conf:
+                                st.markdown(f'<span class="{get_confidence_class(confidence)}">Confidence: {confidence:.1%}</span>', unsafe_allow_html=True)
                             
                             if response.get('requires_human_review'):
                                 st.warning("🚨 Requires human review")
@@ -507,30 +455,21 @@ def main():
                             if response.get('clarification_needed') and response.get('clarification_question'):
                                 st.info(f"❓ {response['clarification_question']}")
                             
-                            # NEW: Improved response display
+                            # Updated response display - clean and simple
                             draft_reply = response.get('draft_reply', '')
                             formatted_reply = format_email_text(draft_reply).replace('\n', '<br>')
                             
                             st.markdown(f"""
                             <div class="response-container">
-                                <div class="response-inner">
-                                    <div class="response-header">
-                                        <span class="response-icon">✉️</span>
-                                        <span class="response-title">We'll respond shortly to your query</span>
-                                    </div>
-                                    <div class="response-message">
-                                        {formatted_reply}
-                                    </div>
-                                    <div class="response-footer">
-                                        AI Assistant · Instant Response
-                                    </div>
+                                <div class="response-message">
+                                    {formatted_reply}
                                 </div>
                             </div>
                             """, unsafe_allow_html=True)
         
         with col2:
             if not submitted:
-                st.info("👈 Compose your email and click 'Get Assistance'")
+                st.info("👈 Fill form and click 'Get Assistance'")
                 
                 st.markdown("""
                 <div class="info-box">
