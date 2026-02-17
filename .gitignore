@@ -1,18 +1,38 @@
-# Python cache files
+# Virtual Environment
+venv/
+env/
+.venv/
+agent_venvd/
+ENV/
+env.bak/
+venv.bak/
+
+# Python cache
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+.python-version
 
-# Vector store (local)
-faiss_index.faiss
-faiss_index.pkl
+# IDE
+.vscode/
+.idea/
 
-# Environment
+# Vector store
+*.faiss
+*.pkl
+
+# Environment variables
 .env
-backend/.env
-frontend/.env
+.env.local
 
-# Documents (if sensitive)
+# Documents
 documents/
-backend/documents/
-!documents/.gitkeep
+*.pdf
+*.docx
+*.txt
+
+# Large data files
+*.zip
+*.tar
+*.gz
