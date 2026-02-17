@@ -4,8 +4,9 @@ import json
 import pandas as pd
 from datetime import datetime
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+import pytz
 
 # Page configuration
 st.set_page_config(
@@ -110,7 +111,7 @@ st.markdown("""
         background: #1565C0 !important;
     }
     
-    /* Response Container - UPDATED */
+    /* Response Container */
     .response-container {
         background: white;
         border-radius: 12px;
@@ -129,6 +130,88 @@ st.markdown("""
         font-size: 0.95rem;
         line-height: 1.6;
         margin: 0;
+    }
+    
+    /* Quota exceeded specific styling */
+    .quota-exceeded {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin: 1rem 0;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+    
+    .quota-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+    
+    .quota-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .quota-message {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.95;
+    }
+    
+    .quota-details {
+        background-color: rgba(255,255,255,0.2);
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        font-size: 1rem;
+        backdrop-filter: blur(5px);
+    }
+    
+    .quota-timer {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #ffd700;
+        margin: 1rem 0;
+    }
+    
+    .quota-footer {
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    
+    .quota-button {
+        background-color: white;
+        color: #764ba2;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 1rem;
+    }
+    
+    .quota-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
     
     /* Old email preview - kept for history page */
@@ -296,6 +379,40 @@ def format_email_text(text):
     
     return text
 
+def show_quota_message():
+    """Display a beautiful quota exceeded message"""
+    
+    # Calculate time until reset (midnight PST)
+    pst = pytz.timezone('US/Pacific')
+    now_pst = datetime.now(pst)
+    midnight_pst = now_pst.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    time_until_reset = midnight_pst - now_pst
+    hours = int(time_until_reset.total_seconds() // 3600)
+    minutes = int((time_until_reset.total_seconds() % 3600) // 60)
+    
+    st.markdown(f"""
+    <div class="quota-exceeded">
+        <div class="quota-icon">⚠️</div>
+        <div class="quota-title">API Quota Exceeded</div>
+        <div class="quota-message">You've reached your daily limit for Gemini API requests.</div>
+        <div class="quota-details">
+            <strong>Daily Limit:</strong> 20 requests<br>
+            <strong>Model:</strong> gemini-2.5-flash<br>
+            <strong>Status:</strong> You've used all 20 requests for today
+        </div>
+        <div class="quota-timer">
+            ⏰ Resets in {hours}h {minutes}m
+        </div>
+        <div class="quota-footer">
+            Free tier limits reset at midnight Pacific Time<br>
+            <a href="https://console.cloud.google.com" target="_blank" style="color: white; text-decoration: underline;">Upgrade to paid tier</a> for higher limits
+        </div>
+        <button class="quota-button" onclick="window.location.reload()">
+            🔄 Check Again
+        </button>
+    </div>
+    """, unsafe_allow_html=True)
+
 def process_email(email_data):
     """Send email to API for processing"""
     try:
@@ -309,17 +426,27 @@ def process_email(email_data):
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 429:
-            st.error("API quota exceeded. Please try again later.")
+            # Check if it's a quota error
+            error_text = response.text.lower()
+            if "quota" in error_text or "limit" in error_text:
+                show_quota_message()
+            else:
+                st.error(f"Error: {response.text}")
             return None
         else:
             st.error(f"Error: {response.text}")
             return None
             
     except requests.exceptions.Timeout:
-        st.error("Request timed out. Please try again.")
+        # Could be quota-related timeout
+        show_quota_message()
         return None
     except Exception as e:
-        st.error(f"Connection error: {str(e)}")
+        error_str = str(e).lower()
+        if "429" in error_str or "quota" in error_str or "limit" in error_str:
+            show_quota_message()
+        else:
+            st.error(f"Connection error: {str(e)}")
         return None
 
 def get_confidence_class(score):
@@ -458,7 +585,7 @@ def main():
                             if response.get('clarification_needed') and response.get('clarification_question'):
                                 st.info(f"❓ {response['clarification_question']}")
                             
-                            # Updated response display - clean and simple
+                            # Response display
                             draft_reply = response.get('draft_reply', '')
                             formatted_reply = format_email_text(draft_reply).replace('\n', '<br>')
                             
@@ -472,7 +599,7 @@ def main():
         
         with col2:
             if not submitted:
-                st.info("👈Compose your email and get Assistance at a click!")
+                st.info("👈 Compose your email and get Assistance at a click!")
                 
                 st.markdown("""
                 <div class="info-box">
