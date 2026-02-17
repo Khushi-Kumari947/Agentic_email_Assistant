@@ -66,7 +66,7 @@ st.markdown("""
     /* Form labels - BLACK */
     .stTextInput label, .stTextArea label {
         font-weight: 600 !important;
-        color: #C3BFDE !important;
+        color: #000000 !important;
         font-size: 1rem !important;
         margin-bottom: 0.3rem !important;
     }
@@ -107,7 +107,68 @@ st.markdown("""
         background: #1565C0 !important;
     }
     
-    /* Email preview card */
+    /* Response Container - NEW AND IMPROVED */
+    .response-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        padding: 2px;
+        margin-top: 1rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+    
+    .response-inner {
+        background: white;
+        border-radius: 14px;
+        padding: 1.5rem;
+    }
+    
+    .response-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .response-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .response-title {
+        font-weight: 600;
+        color: #333;
+        font-size: 1.1rem;
+    }
+    
+    .response-message {
+        background: #F8F9FF;
+        padding: 1.2rem;
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+        color: #333;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 0.5rem 0;
+    }
+    
+    .response-footer {
+        margin-top: 1rem;
+        text-align: right;
+        color: #888;
+        font-size: 0.85rem;
+        font-style: italic;
+    }
+    
+    /* Old email preview - kept for history page */
     .email-preview {
         background-color: #F5F5F5;
         padding: 1.5rem;
@@ -411,7 +472,7 @@ def main():
                         "recipient": recipient if recipient else None
                     }
                     
-                    with st.spinner("Analyzing..."):
+                    with st.spinner("🤔 Analyzing your query..."):
                         response = process_email(email_data)
                     
                     if response:
@@ -422,7 +483,7 @@ def main():
                             "response": response
                         })
                         
-                        st.success("✅ Success!")
+                        st.success("✅ Response generated!")
                         
                         with col2:
                             # Category and confidence
@@ -446,11 +507,26 @@ def main():
                             if response.get('clarification_needed') and response.get('clarification_question'):
                                 st.info(f"❓ {response['clarification_question']}")
                             
+                            # NEW: Improved response display
                             draft_reply = response.get('draft_reply', '')
                             formatted_reply = format_email_text(draft_reply).replace('\n', '<br>')
                             
-                            st.markdown("**Draft Reply:**")
-                            st.markdown(f'<div class="email-preview">{formatted_reply}</div>', unsafe_allow_html=True)
+                            st.markdown(f"""
+                            <div class="response-container">
+                                <div class="response-inner">
+                                    <div class="response-header">
+                                        <span class="response-icon">✉️</span>
+                                        <span class="response-title">We'll respond shortly to your query</span>
+                                    </div>
+                                    <div class="response-message">
+                                        {formatted_reply}
+                                    </div>
+                                    <div class="response-footer">
+                                        AI Assistant · Instant Response
+                                    </div>
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
         
         with col2:
             if not submitted:
@@ -489,7 +565,7 @@ def main():
                     draft_reply = response.get('draft_reply', '')
                     formatted_reply = format_email_text(draft_reply)
                     
-                    st.markdown("**Draft Reply:**")
+                    st.markdown("**Response:**")
                     st.markdown(f'<div class="email-preview">{formatted_reply}</div>', unsafe_allow_html=True)
             
             if st.button("Clear History"):
