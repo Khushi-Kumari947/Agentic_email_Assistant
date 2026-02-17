@@ -37,25 +37,44 @@ st.markdown("""
         font-weight: 700;
     }
     
-    /* Section headers - FIXED: Now dark and visible */
+    /* Force ALL headers to be dark and visible */
+    h1, h2, h3, h4, h5, h6 {
+        color: #000000 !important;
+        font-weight: 700 !important;
+        margin-bottom: 0.8rem !important;
+    }
+    
+    /* Specific targeting for Streamlit elements */
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, 
+    .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: #000000 !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Target the "Email Details" and similar headers */
+    .element-container .stMarkdown h3 {
+        color: #000000 !important;
+        font-size: 1.3rem !important;
+        border-bottom: 2px solid #1E88E5 !important;
+        padding-bottom: 0.3rem !important;
+    }
+    
+    /* Section headers */
     .section-header {
         font-size: 1.5rem !important;
         font-weight: 700 !important;
-        color: #000000 !important;  /* Pure black for maximum contrast */
+        color: #000000 !important;
         margin-bottom: 1.2rem !important;
         padding-bottom: 0.5rem !important;
         border-bottom: 3px solid #1E88E5 !important;
-        letter-spacing: -0.01em !important;
-        background-color: transparent !important;
     }
     
-    /* Form labels - FIXED: Now dark and visible */
+    /* Form labels - Now dark and visible */
     .stTextInput label, .stTextArea label {
         font-weight: 600 !important;
-        color: #000000 !important;  /* Pure black */
+        color: #000000 !important;
         font-size: 1rem !important;
         margin-bottom: 0.3rem !important;
-        opacity: 1 !important;
     }
     
     /* Input field styling */
@@ -68,7 +87,6 @@ st.markdown("""
         background-color: #FFFFFF !important;
         color: #1A1F36 !important;
         caret-color: #1E88E5 !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
     }
     
     /* Input focus state */
@@ -84,7 +102,6 @@ st.markdown("""
         color: #9E9E9E !important;
         font-size: 0.9rem !important;
         font-style: italic;
-        opacity: 0.8 !important;
     }
     
     /* Required field indicator */
@@ -92,7 +109,6 @@ st.markdown("""
         content: " *";
         color: #E53E3E;
         font-weight: 600;
-        font-size: 1rem;
     }
     
     /* Optional field indicator */
@@ -104,7 +120,7 @@ st.markdown("""
         font-size: 0.85rem;
     }
     
-    /* Button styling - CHANGED: Updated text */
+    /* Button styling */
     .stButton button {
         background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%) !important;
         color: white !important;
@@ -276,13 +292,13 @@ st.markdown("""
     
     .info-box-title {
         font-weight: 700;
-        color: #0D47A1;
+        color: #0D47A1 !important;
         margin-bottom: 0.75rem;
         font-size: 1.1rem;
     }
     
     .info-box-item {
-        color: #1A1F36;
+        color: #1A1F36 !important;
         margin: 0.5rem 0;
         padding-left: 1.5rem;
         position: relative;
@@ -294,6 +310,17 @@ st.markdown("""
         font-weight: bold;
         position: absolute;
         left: 0.5rem;
+    }
+    
+    /* Make all text in info box dark */
+    .info-box p, .info-box div, .info-box span {
+        color: #1A1F36 !important;
+    }
+    
+    /* Force "Quick Tips" header to be dark */
+    .info-box h1, .info-box h2, .info-box h3, .info-box h4 {
+        color: #0D47A1 !important;
+        font-weight: 700 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -335,7 +362,6 @@ def process_email(email_data):
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 429:
-            error_data = response.json().get('detail', {})
             st.error("API quota exceeded. Please try again later.")
             return None
         else:
@@ -386,7 +412,7 @@ def main():
         st.markdown("---")
         
         # API Status
-        st.markdown('<p class="sidebar-header">🔌 CONNECTION</p>', unsafe_allow_html=True)
+        st.markdown("🔌 **CONNECTION**")
         api_healthy = check_api_health()
         if api_healthy:
             st.success("✅ Connected to backend")
@@ -399,7 +425,7 @@ def main():
         st.markdown("---")
         
         # Navigation
-        st.markdown('<p class="sidebar-header">🧭 NAVIGATION</p>', unsafe_allow_html=True)
+        st.markdown("🧭 **NAVIGATION**")
         page = st.radio(
             "Go to",
             ["📧 Compose Email", "📋 History", "ℹ️ About"],
@@ -413,10 +439,10 @@ def main():
         col1, col2 = st.columns([1, 1], gap="large")
         
         with col1:
-            st.markdown('<p class="section-header">📝 Compose Email</p>', unsafe_allow_html=True)
+            st.markdown("## 📝 Compose Email")  # Using markdown directly
             
             with st.form("email_form"):
-                st.markdown("### Email Details")  # Extra visible header
+                st.markdown("### Email Details")
                 
                 subject = st.text_input(
                     "Subject",
@@ -443,7 +469,6 @@ def main():
                     help="Type your email content here"
                 )
                 
-                # CHANGED: Button text from "Generate Reply" to "📨 Get Assistance"
                 submitted = st.form_submit_button(
                     "📨 Get Assistance",
                     use_container_width=True
@@ -476,7 +501,7 @@ def main():
                         st.success("✅ Email processed successfully!")
                         
                         with col2:
-                            st.markdown('<p class="section-header">📨 AI Response</p>', unsafe_allow_html=True)
+                            st.markdown("## 📨 AI Response")
                             
                             # Category and confidence
                             category = response.get('category', 'general_inquiry')
@@ -518,13 +543,13 @@ def main():
         
         with col2:
             if not submitted:
-                st.markdown('<p class="section-header">📨 AI Response</p>', unsafe_allow_html=True)
+                st.markdown("## 📨 AI Response")
                 st.info("👈 Fill out the form and click 'Get Assistance' to see the AI-generated response here")
                 
                 # Quick tips box
                 st.markdown("""
                 <div class="info-box">
-                    <div class="info-box-title">💡 Quick Tips</div>
+                    <h3 style="color: #0D47A1; font-weight: 700; margin-bottom: 0.75rem;">💡 Quick Tips</h3>
                     <div class="info-box-item">Ask about policies like leave, WFH, benefits</div>
                     <div class="info-box-item">Include specific details for better answers</div>
                     <div class="info-box-item">Sensitive matters are automatically escalated</div>
