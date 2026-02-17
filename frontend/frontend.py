@@ -40,7 +40,7 @@ st.markdown("""
     /* Main header styling */
     .main-header {
         font-size: 2.5rem;
-        color: #1E88E5 !important;
+        color: #FFFFFF !important;
         text-align: center;
         margin-bottom: 2rem;
         font-weight: 700;
@@ -113,7 +113,7 @@ st.markdown("""
         padding: 1.5rem;
         border-radius: 8px;
         border-left: 4px solid #1E88E5;
-        color: #FFFFFF;
+        color: #000000;
         font-size: 0.95rem;
         line-height: 1.5;
         border: 1px solid #E0E0E0;
