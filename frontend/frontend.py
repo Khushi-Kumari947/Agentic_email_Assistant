@@ -28,45 +28,34 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
     
-    /* Main header styling - DARK for visibility */
+    /* Main header styling */
     .main-header {
         font-size: 2.5rem;
         color: #1E88E5 !important;
         text-align: center;
         margin-bottom: 2rem;
         font-weight: 700;
-        letter-spacing: -0.02em;
-        background: linear-gradient(135deg, #1E88E5, #1565C0);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
     }
     
-    /* Section headers - DARK and BOLD */
+    /* Section headers - FIXED: Now dark and visible */
     .section-header {
-        font-size: 1.4rem;
+        font-size: 1.5rem !important;
         font-weight: 700 !important;
-        color: #1A1F36 !important;
-        margin-bottom: 1.2rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 3px solid #1E88E5;
-        letter-spacing: -0.01em;
+        color: #000000 !important;  /* Pure black for maximum contrast */
+        margin-bottom: 1.2rem !important;
+        padding-bottom: 0.5rem !important;
+        border-bottom: 3px solid #1E88E5 !important;
+        letter-spacing: -0.01em !important;
+        background-color: transparent !important;
     }
     
-    /* Sub-headers */
-    .sub-header {
-        font-size: 1.1rem;
-        font-weight: 600 !important;
-        color: #2C3E50 !important;
-        margin: 1rem 0 0.5rem 0;
-    }
-    
-    /* Form labels - Make them DARK */
+    /* Form labels - FIXED: Now dark and visible */
     .stTextInput label, .stTextArea label {
         font-weight: 600 !important;
-        color: #1A1F36 !important;
-        font-size: 0.95rem !important;
+        color: #000000 !important;  /* Pure black */
+        font-size: 1rem !important;
         margin-bottom: 0.3rem !important;
+        opacity: 1 !important;
     }
     
     /* Input field styling */
@@ -115,7 +104,7 @@ st.markdown("""
         font-size: 0.85rem;
     }
     
-    /* Button styling */
+    /* Button styling - CHANGED: Updated text */
     .stButton button {
         background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%) !important;
         color: white !important;
@@ -159,32 +148,31 @@ st.markdown("""
         font-size: 0.9rem;
         margin-right: 0.75rem;
         margin-bottom: 0.75rem;
-        letter-spacing: 0.02em;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid;
     }
     
     .badge-policy {
         background: #E3F2FD;
         color: #0D47A1;
-        border: 1px solid #90CAF9;
+        border-color: #90CAF9;
     }
     
     .badge-sensitive {
         background: #FFEBEE;
         color: #B71C1C;
-        border: 1px solid #EF9A9A;
+        border-color: #EF9A9A;
     }
     
     .badge-general {
         background: #E8F5E9;
         color: #1B5E20;
-        border: 1px solid #A5D6A7;
+        border-color: #A5D6A7;
     }
     
     .badge-clarification {
         background: #FFF3E0;
         color: #BF360C;
-        border: 1px solid #FFB74D;
+        border-color: #FFB74D;
     }
     
     /* Confidence meter */
@@ -307,26 +295,6 @@ st.markdown("""
         position: absolute;
         left: 0.5rem;
     }
-    
-    /* Quota exceeded message */
-    .quota-exceeded {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 16px;
-        margin: 1rem 0;
-        text-align: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    
-    /* History items */
-    .history-item {
-        background-color: #FFFFFF;
-        padding: 1rem;
-        border-radius: 12px;
-        border: 1px solid #E0E0E0;
-        margin-bottom: 0.5rem;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -448,6 +416,8 @@ def main():
             st.markdown('<p class="section-header">📝 Compose Email</p>', unsafe_allow_html=True)
             
             with st.form("email_form"):
+                st.markdown("### Email Details")  # Extra visible header
+                
                 subject = st.text_input(
                     "Subject",
                     placeholder="e.g., Question about sick leave policy",
@@ -473,8 +443,9 @@ def main():
                     help="Type your email content here"
                 )
                 
+                # CHANGED: Button text from "Generate Reply" to "📨 Get Assistance"
                 submitted = st.form_submit_button(
-                    "🚀 Generate Reply",
+                    "📨 Get Assistance",
                     use_container_width=True
                 )
             
@@ -491,7 +462,7 @@ def main():
                         "recipient": recipient if recipient else None
                     }
                     
-                    with st.spinner("🤔 Agent is analyzing your email..."):
+                    with st.spinner("🤔 Assistant is analyzing your email..."):
                         response = process_email(email_data)
                     
                     if response:
@@ -505,7 +476,7 @@ def main():
                         st.success("✅ Email processed successfully!")
                         
                         with col2:
-                            st.markdown('<p class="section-header">📨 Generated Reply</p>', unsafe_allow_html=True)
+                            st.markdown('<p class="section-header">📨 AI Response</p>', unsafe_allow_html=True)
                             
                             # Category and confidence
                             category = response.get('category', 'general_inquiry')
@@ -547,8 +518,8 @@ def main():
         
         with col2:
             if not submitted:
-                st.markdown('<p class="section-header">📨 Generated Reply</p>', unsafe_allow_html=True)
-                st.info("👈 Fill out the form and click 'Generate Reply' to see the response here")
+                st.markdown('<p class="section-header">📨 AI Response</p>', unsafe_allow_html=True)
+                st.info("👈 Fill out the form and click 'Get Assistance' to see the AI-generated response here")
                 
                 # Quick tips box
                 st.markdown("""
