@@ -79,12 +79,14 @@ st.markdown("""
         padding: 0.6rem !important;
         background-color: #FFFFFF !important;
         color: #000000 !important;
+        caret-color: #1E88E5 !important;
     }
     
     /* Input focus */
     .stTextInput input:focus, .stTextArea textarea:focus {
         border-color: #1E88E5 !important;
         box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2) !important;
+        caret-color: #1E88E5 !important;
     }
     
     /* Placeholder styling */
