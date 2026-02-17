@@ -496,7 +496,7 @@ def get_stats():
 
 def list_documents():
     """List documents in the documents folder"""
-    docs_dir = "documents"
+    docs_dir = "backend/documents"
     if os.path.exists(docs_dir):
         return [f for f in os.listdir(docs_dir) if f.endswith(('.pdf', '.docx', '.txt'))]
     return []
