@@ -33,7 +33,7 @@ st.markdown("""
     .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, 
     .stMarkdown h4, .stMarkdown h5, .stMarkdown h6,
     .css-10trblm, .css-1v0mbdj, .e16nr0p30 {
-        color: #FFFFFF !important;
+        color: #0F4FA6 !important;
         font-weight: 600 !important;
     }
     
