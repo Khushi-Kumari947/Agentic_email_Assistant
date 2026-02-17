@@ -32,6 +32,19 @@ else:
 # Custom CSS with better contrast and visibility
 st.markdown("""
 <style>
+    /* Make placeholders more visible */
+    input::placeholder, textarea::placeholder {
+        color: #888888 !important;
+        opacity: 1 !important;
+        font-style: italic;
+    }
+    
+    /* Style for the input fields themselves */
+    .stTextInput input, .stTextArea textarea {
+        color: #000000 !important;
+        background-color: #ffffff !important;
+    }
+            
     /* Main header */
     .main-header {
         font-size: 2.5rem;
