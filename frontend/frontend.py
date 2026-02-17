@@ -604,14 +604,14 @@ def main():
                 sender = st.text_input(
                     "From (Sender)*",
                     placeholder="sender@company.com",
-                    value="employee@company.com",
+                    # value="employee@company.com",
                     help="Required field"
                 )
                 
                 recipient = st.text_input(
                     "To (Recipient)",
                     placeholder="recipient@company.com",
-                    value="hr@company.com",
+                    # value="hr@company.com",
                     help="Optional field"
                 )
                 
