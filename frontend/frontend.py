@@ -16,9 +16,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# # Constants
-# API_BASE_URL = "http://localhost:8000"
-
 # Get API URL from environment variables (set in Streamlit Cloud secrets)
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
@@ -329,8 +326,6 @@ st.markdown("""
 # Initialize session state
 if 'email_history' not in st.session_state:
     st.session_state.email_history = []
-if 'documents_list' not in st.session_state:
-    st.session_state.documents_list = []
 
 # Helper functions
 def check_api_health():
@@ -470,36 +465,6 @@ def show_quota_message(error_data):
     </div>
     """, unsafe_allow_html=True)
 
-def ingest_documents():
-    """Trigger document ingestion"""
-    try:
-        response = requests.post(f"{API_BASE_URL}/ingest", timeout=5)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            st.error(f"Ingestion failed: {response.text}")
-            return None
-    except Exception as e:
-        st.error(f"Connection error: {str(e)}")
-        return None
-
-def get_stats():
-    """Get system statistics"""
-    try:
-        response = requests.get(f"{API_BASE_URL}/stats", timeout=5)
-        if response.status_code == 200:
-            return response.json()
-    except:
-        pass
-    return None
-
-def list_documents():
-    """List documents in the documents folder"""
-    if BACKEND_DOCS_DIR.exists():
-        return [f.name for f in BACKEND_DOCS_DIR.glob("*") 
-                if f.suffix.lower() in ('.pdf', '.docx', '.txt')]
-    return []
-
 def get_confidence_class(score):
     """Get CSS class for confidence score"""
     if score >= 0.8:
@@ -550,43 +515,6 @@ def main():
         
         st.markdown("---")
         
-        # System Stats
-        st.markdown('<p class="sidebar-header">📊 System Stats</p>', unsafe_allow_html=True)
-        stats = get_stats()
-        if stats:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("Documents", stats.get('documents_indexed', 0))
-            with col2:
-                st.metric("Vector Store", "✅" if stats.get('vector_store_loaded', False) else "❌")
-        else:
-            st.info("No stats available")
-        
-        st.markdown("---")
-        
-        # Document Management
-        st.markdown('<p class="sidebar-header">📄 Document Management</p>', unsafe_allow_html=True)
-        
-        # Show documents in folder
-        docs = list_documents()
-        if docs:
-            st.success(f"📁 {len(docs)} documents found")
-            with st.expander("View documents"):
-                for doc in docs:
-                    st.text(f"📄 {doc}")
-        else:
-            st.warning("No documents in /documents folder")
-        
-        # Ingest button
-        if st.button("🔄 Ingest Documents", type="primary", use_container_width=True):
-            with st.spinner("Ingesting documents..."):
-                result = ingest_documents()
-                if result:
-                    st.success("Ingestion started!")
-                    st.info(result.get('message', ''))
-        
-        st.markdown("---")
-        
         # Navigation
         st.markdown('<p class="sidebar-header">🧭 Navigation</p>', unsafe_allow_html=True)
         page = st.radio(
@@ -609,27 +537,25 @@ def main():
             with st.form("email_form"):
                 subject = st.text_input(
                     "Subject*",
-                    placeholder="Enter email subject",
+                    placeholder="e.g., Question about sick leave",
                     help="Required field"
                 )
                 
                 sender = st.text_input(
                     "From (Sender)*",
-                    placeholder="sender@company.com",
-                    # value="employee@company.com",
+                    placeholder="e.g., employee@company.com",
                     help="Required field"
                 )
                 
                 recipient = st.text_input(
                     "To (Recipient)",
-                    placeholder="recipient@company.com",
-                    # value="hr@company.com",
+                    placeholder="e.g., hr@company.com",
                     help="Optional field"
                 )
                 
                 body = st.text_area(
                     "Email Body*",
-                    placeholder="Type your email content here...",
+                    placeholder="e.g., How many sick days do I get per year? Do I need a doctor's note?",
                     height=200,
                     help="Required field"
                 )
@@ -729,20 +655,6 @@ def main():
             if not submitted:
                 st.markdown("### 📨 Generated Reply")
                 st.info("👈 Fill out the form and click 'Process Email' to see the generated reply here")
-                
-                # Show sample templates
-                st.markdown("### 📝 Sample Templates")
-                templates = {
-                    "Policy Question": "What's the work from home policy?",
-                    "Sensitive Matter": "I want to report a harassment issue",
-                    "Vacation Request": "How do I request vacation days?",
-                    "Benefits": "What's the 401k matching policy?"
-                }
-                
-                for name, template in templates.items():
-                    if st.button(f"📌 {name}", key=name):
-                        st.session_state['template'] = template
-                        st.rerun()
     
     elif page == "📋 History":
         st.markdown("<h1 class='main-header'>📋 Email History</h1>", unsafe_allow_html=True)
@@ -826,21 +738,7 @@ def main():
         
         with col2:
             st.markdown("""
-            ### 📁 Document Management
-            
-            Place your policy documents in the `/documents` folder:
-            - PDF files (*.pdf)
-            - Word documents (*.docx)
-            - Text files (*.txt)
-            
-            ### 🚀 Getting Started
-            
-            1. Add documents to `/documents` folder
-            2. Click "Ingest Documents" in sidebar
-            3. Compose an email
-            4. Get AI-generated reply
-            
-            ### 📊 Features
+            ### 📚 Features
             
             - ✅ Real-time processing
             - ✅ Document retrieval
