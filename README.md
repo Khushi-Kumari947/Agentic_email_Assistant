@@ -5,7 +5,7 @@
 [![LangChain](https://img.shields.io/badge/LangChain-0.1%2B-orange)](https://langchain.com)
 [![Google Gemini](https://img.shields.io/badge/Google%20Gemini-2.5-yellow)](https://deepmind.google/technologies/gemini/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.31%2B-red)](https://streamlit.io)
-[![Railway](https://img.shields.io/badge/Railway-Deployed-brightgreen)](https://railway.app)
+[![ngrok](https://img.shields.io/badge/ngrok-Tunnel-blueviolet)](https://ngrok.com)
 
 An intelligent email assistant that automatically understands and responds to employee inquiries by leveraging company policy documents through **RAG** and **agent-based architecture**.
 
@@ -29,15 +29,15 @@ An intelligent email assistant that automatically understands and responds to em
 | **Backend** | FastAPI, LangChain, Google Gemini 2.5 |
 | **Vector DB** | FAISS with Sentence Transformers |
 | **Frontend** | Streamlit |
-| **Deployment** | Railway (backend), Streamlit Cloud (frontend) |
-| **Storage** | Railway persistent volumes |
+| **Tunneling** | ngrok (for exposing local backend) |
+| **Frontend Hosting** | Streamlit Cloud |
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-Employee Query → LangChain Agent → Policy Search (FAISS) → Gemini LLM → Professional Reply
+Employee Query → Streamlit Cloud → ngrok Tunnel → Local Backend → LangChain Agent → Policy Search (FAISS) → Gemini LLM → Professional Reply
                                     ↓                            ↓
                               Human Escalation              Email Response
 ```
@@ -49,6 +49,7 @@ Employee Query → LangChain Agent → Policy Search (FAISS) → Gemini LLM → 
 ### Prerequisites
 - Python 3.9+
 - Google Gemini API key ([Get one](https://makersuite.google.com/app/apikey))
+- ngrok account (free) for tunneling ([Sign up](https://dashboard.ngrok.com/signup))
 
 ### Local Setup
 
@@ -63,6 +64,10 @@ cp .env.example .env        # Add your Gemini API key
 pip install -r requirements.txt
 uvicorn src.main:app --reload
 
+# Expose backend with ngrok (new terminal)
+ngrok http 8000
+# Copy the https URL (e.g., https://your-tunnel.ngrok-free.dev)
+
 # Frontend setup (new terminal)
 cd frontend
 pip install -r requirements.txt
@@ -71,7 +76,8 @@ streamlit run frontend.py
 
 Access:
 - Frontend: http://localhost:8501
-- API Docs: http://localhost:8000/docs
+- Backend API: http://localhost:8000/docs
+- Public API URL: Your ngrok URL
 
 ---
 
@@ -86,11 +92,10 @@ ai-email-assistant/
 │   │   ├── main.py         # API endpoints
 │   │   └── config.py       # Configuration
 │   ├── documents/          # Policy files (add your PDFs here)
-│   ├── railway.json        # Railway config
 │   └── requirements.txt
 ├── frontend/                # Streamlit app
 │   ├── frontend.py
-│   └── requirements.txt
+│   └── requirements.txt    # streamlit, requests only
 └── README.md
 ```
 
@@ -128,49 +133,104 @@ POST /process-email
 
 ---
 
+## 🧪 Sample Tests
+
+### Test Emails for Different Scenarios
+
+| Scenario | Sample Input |
+|----------|--------------|
+| **Policy Query** | `{"subject": "Sick leave policy", "body": "How many sick days do I get?", "sender": "employee@company.com"}` |
+| **Work From Home** | `{"subject": "Remote work", "body": "Can I work from home on Fridays?", "sender": "employee@company.com"}` |
+| **Sensitive Matter** | `{"subject": "Harassment complaint", "body": "I need to report inappropriate behavior", "sender": "employee@company.com"}` |
+| **Benefits Question** | `{"subject": "Health insurance", "body": "Does dental cover root canals?", "sender": "employee@company.com"}` |
+| **Vacation Request** | `{"subject": "Vacation", "body": "How do I request time off?", "sender": "employee@company.com"}` |
+
+### Quick Test Script
+
+```python
+import requests
+
+API_URL = "https://your-tunnel.ngrok-free.dev/process-email"
+
+test_email = {
+    "subject": "Sick leave policy",
+    "body": "How many sick days do I get?",
+    "sender": "test@company.com"
+}
+
+response = requests.post(API_URL, json=test_email)
+print(response.json())
+```
+
+---
+
 ## 🌐 Live Demo
 
-- **Frontend**: [https://ai-email-assistant.streamlit.app](https://ai-email-assistant.streamlit.app)
-- **Backend API**: [https://ai-email-assistant-api.railway.app/docs](https://ai-email-assistant-api.railway.app/docs)
+- **Frontend (Streamlit Cloud)**: [https://ai-email-assistant.streamlit.app](https://agentic-email-assistant.streamlit.app/)
+- **Backend API (via ngrok)**: [https://your-tunnel.ngrok-free.dev/docs](https://leana-unsick-mira.ngrok-free.dev) (Contact for current URL if this doesn't work as it changes on restart)
 
 ---
 
 ## 🚢 Deployment
 
-### Backend (Railway)
+### Backend: Local + ngrok Tunnel
+
+Due to **Railway free trial expiration** and limited free tier options for ML-focused backends, the backend is currently hosted locally and exposed via **ngrok**:
+
 ```bash
-# Push to GitHub, then:
-1. Create new project on Railway
-2. Connect repo, set root to /backend
-3. Add GOOGLE_API_KEY in variables
-4. Deploy! 🚀
+# Start backend locally
+cd backend
+uvicorn src.main:app --reload
+
+# Expose with ngrok
+ngrok http 8000
+# Public URL: https://your-tunnel.ngrok-free.dev
 ```
 
-### Frontend (Streamlit Cloud)
+**Note**: 
+- The ngrok URL changes each time the tunnel is restarted
+- Backend runs on local machine (requires internet and uptime)
+- Perfect for demonstration and development purposes
+
+### Frontend: Streamlit Cloud
+
+The frontend is deployed on **Streamlit Cloud** (free tier):
+
 ```bash
 1. Go to share.streamlit.io
-2. Deploy with main file: frontend/frontend.py
-3. Add secret: API_BASE_URL = your-railway-url
+2. Connect GitHub repository
+3. Set main file: frontend/frontend.py
+4. Add environment secret:
+   - Key: `API_BASE_URL`
+   - Value: Current ngrok URL (e.g., `https://your-tunnel.ngrok-free.dev`)
+5. Deploy! 🚀
 ```
 
+**Why this setup?**
+- ✅ Railway free trial expired
+- ✅ Render free tier has limitations for ML apps
+- ✅ Streamlit Cloud offers generous free tier for frontend
+- ✅ ngrok provides easy tunneling for local backend
+- ✅ Cost-effective for demonstration
+  
 ---
 
-## 📊 Performance
+## 🔮 Future Roadmap
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| Response Time | <30s | ~12s |
-| Accuracy | >90% | 94% |
-| Escalation Rate | <15% | 8% |
+- [ ] **Slack/Teams integration** for instant messaging
+- [ ] **Email auto-responder** with IMAP integration
+- [ ] **Analytics dashboard** with usage metrics
+- [ ] **Multi-language support** for global teams
+- [ ] **Cloud deployment** when budget permits
 
 ---
 
-## 🔮 Roadmap/Future Aspects
+## ⚠️ Important Notes
 
-- [ ] Slack/Teams integration
-- [ ] Email auto-responder (IMAP)
-- [ ] Analytics dashboard
-- [ ] Multi-language support
+- The backend runs locally, so it's only available when your machine is on
+- ngrok URL changes on restart - update Streamlit secrets accordingly
+- Free ngrok has limitations: 40 connections/minute, 4 tunnels/process
+- For production use, consider deploying on a cloud platform with persistent storage
 
 ---
 
