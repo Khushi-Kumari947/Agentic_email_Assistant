@@ -21,241 +21,121 @@ API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 # Custom CSS for better UX and visibility
 st.markdown("""
 <style>
-    /* Import Google Font */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    
-    * {
-        font-family: 'Inter', sans-serif;
-    }
-    
-    /* Force ALL headers to be BLACK and VISIBLE */
-    h1, h2, h3, h4, h5, h6,
-    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, 
-    .stMarkdown h4, .stMarkdown h5, .stMarkdown h6,
-    .css-10trblm, .css-1v0mbdj, .e16nr0p30 {
-        color: #000000 !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Main header styling */
-    .main-header {
-        font-size: 2.5rem;
-        color: #1E88E5 !important;
-        text-align: center;
-        margin-bottom: 2rem;
-        font-weight: 700;
-    }
-    
-    /* Sidebar headers - FIXED */
-    .css-1d391kg h1, .css-1d391kg h2, .css-1d391kg h3,
-    .css-1d391kg .stMarkdown h3 {
-        color: #000000 !important;
-        font-weight: 700 !important;
-    }
-    
-    /* Sidebar text */
-    .css-1d391kg, .css-1d391kg p, .css-1d391kg span {
-        color: #1A1F36 !important;
-    }
-    
-    /* Sidebar success/error messages */
-    .css-1d391kg .stAlert {
-        color: inherit !important;
-    }
-    
-    /* Form labels - BLACK */
-    .stTextInput label, .stTextArea label {
-        font-weight: 600 !important;
-        color: #000000 !important;
-        font-size: 1rem !important;
-        margin-bottom: 0.3rem !important;
-    }
-    
-    /* Input fields */
-    .stTextInput input, .stTextArea textarea {
-        border-radius: 8px !important;
-        border: 1px solid #CCCCCC !important;
-        padding: 0.6rem !important;
-        background-color: #FFFFFF !important;
-        color: #000000 !important;
-    }
-    
-    /* Input focus */
-    .stTextInput input:focus, .stTextArea textarea:focus {
-        border-color: #1E88E5 !important;
-        box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2) !important;
-    }
-    
-    /* Placeholder styling */
-    input::placeholder, textarea::placeholder {
-        color: #888888 !important;
-        font-style: italic;
-    }
-    
-    /* Button */
-    .stButton button {
-        background: #1E88E5 !important;
-        color: white !important;
-        font-weight: 600 !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 0.5rem 1rem !important;
-        width: 100%;
-    }
-    
-    .stButton button:hover {
-        background: #1565C0 !important;
-    }
-    
-    /* Email preview card */
-    .email-preview {
-        background-color: #F5F5F5;
-        padding: 1.5rem;
-        border-radius: 8px;
-        border-left: 4px solid #1E88E5;
-        color: #000000;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        border: 1px solid #E0E0E0;
-        margin-top: 1rem;
-    }
-    
-    /* Category badges */
-    .category-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 16px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        margin-right: 0.5rem;
-        border: 1px solid;
-    }
-    
-    .badge-policy {
-        background: #E3F2FD;
-        color: #0D47A1;
-        border-color: #90CAF9;
-    }
-    
-    .badge-sensitive {
-        background: #FFEBEE;
-        color: #B71C1C;
-        border-color: #EF9A9A;
-    }
-    
-    .badge-general {
-        background: #E8F5E9;
-        color: #1B5E20;
-        border-color: #A5D6A7;
-    }
-    
-    .badge-clarification {
-        background: #FFF3E0;
-        color: #BF360C;
-        border-color: #FFB74D;
-    }
-    
-    /* Confidence meter */
-    .confidence-high {
-        color: #1B5E20;
-        font-weight: 600;
-        background: #E8F5E9;
-        padding: 0.25rem 0.75rem;
-        border-radius: 16px;
-        display: inline-block;
-        border: 1px solid #A5D6A7;
-    }
-    
-    .confidence-medium {
-        color: #BF360C;
-        font-weight: 600;
-        background: #FFF3E0;
-        padding: 0.25rem 0.75rem;
-        border-radius: 16px;
-        display: inline-block;
-        border: 1px solid #FFB74D;
-    }
-    
-    .confidence-low {
-        color: #B71C1C;
-        font-weight: 600;
-        background: #FFEBEE;
-        padding: 0.25rem 0.75rem;
-        border-radius: 16px;
-        display: inline-block;
-        border: 1px solid #EF9A9A;
-    }
-    
-    /* Retrieved docs */
-    .retrieved-docs {
-        background: #F5F5F5;
-        padding: 0.75rem;
-        border-radius: 6px;
-        border-left: 3px solid #FFA000;
-        margin: 0.5rem 0;
-        font-size: 0.9rem;
-    }
-    
-    /* Info box */
-    .info-box {
-        background: #F8F9FA;
-        padding: 1.2rem;
-        border-radius: 8px;
-        border: 1px solid #E0E0E0;
-        margin-top: 1rem;
-    }
-    
-    .info-box-title {
-        font-weight: 700;
-        color: #000000 !important;
-        margin-bottom: 0.5rem;
-        font-size: 1rem;
-    }
-    
-    .info-box-item {
-        color: #333333 !important;
-        margin: 0.4rem 0;
-        padding-left: 1.2rem;
-        position: relative;
-    }
-    
-    .info-box-item:before {
-        content: "•";
-        color: #1E88E5;
-        font-weight: bold;
-        position: absolute;
-        left: 0.2rem;
-    }
-    
-    /* Success message */
-    .success-message {
-        background: #D4EDDA;
-        color: #155724;
-        padding: 0.75rem;
-        border-radius: 6px;
-        border-left: 4px solid #28A745;
-        margin: 1rem 0;
-    }
-    
-    /* Warning message */
-    .warning-message {
-        background: #FFF3CD;
-        color: #856404;
-        padding: 0.75rem;
-        border-radius: 6px;
-        border-left: 4px solid #FFC107;
-        margin: 1rem 0;
-    }
-    
-    /* Error message */
-    .error-message {
-        background: #F8D7DA;
-        color: #721C24;
-        padding: 0.75rem;
-        border-radius: 6px;
-        border-left: 4px solid #DC3545;
-        margin: 1rem 0;
-    }
+
+/* Global font */
+html, body, [class*="css"]  {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Main title */
+.main-header {
+    font-size: 2.5rem;
+    text-align: center;
+    font-weight: 700;
+    color: #1E88E5;
+    margin-bottom: 2rem;
+}
+
+/* Headings */
+h1, h2, h3, h4 {
+    color: #000000 !important;
+    font-weight: 600;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #F8F9FA;
+}
+
+/* Input labels */
+label {
+    font-weight: 600 !important;
+    color: #000000 !important;
+}
+
+/* Text inputs */
+input, textarea {
+    border-radius: 8px !important;
+    border: 1px solid #CCCCCC !important;
+}
+
+/* Buttons */
+div.stButton > button {
+    background: #1E88E5;
+    color: white;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+}
+
+div.stButton > button:hover {
+    background: #1565C0;
+}
+
+/* Email preview box */
+.email-preview {
+    background-color: #F5F5F5;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #1E88E5;
+    border: 1px solid #E0E0E0;
+    font-size: 0.95rem;
+}
+
+/* Category badges */
+.category-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.badge-policy {
+    background: #E3F2FD;
+    color: #0D47A1;
+}
+
+.badge-sensitive {
+    background: #FFEBEE;
+    color: #B71C1C;
+}
+
+.badge-general {
+    background: #E8F5E9;
+    color: #1B5E20;
+}
+
+.badge-clarification {
+    background: #FFF3E0;
+    color: #BF360C;
+}
+
+/* Confidence indicators */
+.confidence-high {
+    color: #1B5E20;
+    background: #E8F5E9;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-weight: 600;
+}
+
+.confidence-medium {
+    color: #BF360C;
+    background: #FFF3E0;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-weight: 600;
+}
+
+.confidence-low {
+    color: #B71C1C;
+    background: #FFEBEE;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-weight: 600;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -459,10 +339,10 @@ def main():
                 st.markdown("""
                 <div class="info-box">
                     <div class="info-box-title">💡 Tips</div>
-                    <div class="info-box-item">Ask about leave, WFH, benefits</div>
-                    <div class="info-box-item">Be specific for better answers</div>
-                    <div class="info-box-item">Sensitive matters auto-escalate</div>
-                    <div class="info-box-item">Check history for past chats</div>
+                    <div class="info-box-item">Ask about policies like leave, WFH, benefits</div>
+                    <div class="info-box-item">Include specific details for better answers</div>
+                    <div class="info-box-item">Sensitive matters are automatically escalated</div>
+                    <div class="info-box-item">Check history for past conversations</div>
                 </div>
                 """, unsafe_allow_html=True)
     
