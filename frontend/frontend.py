@@ -517,24 +517,50 @@ def main():
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown("### 🤖 AI Email Assistant")
             st.markdown("""
-            Automates email responses by:
-            - Understanding intent
-            - Searching policies (RAG)
-            - Generating replies
-            - Escalating sensitive matters
+            ### 🤖 AI Email Assistant
+            
+            This intelligent assistant helps automate email responses by:
+            
+            - **Understanding** email intent and category
+            - **Searching** company policies using RAG
+            - **Generating** professional, context-aware replies
+            - **Escalating** sensitive matters to humans
+            
+            ### 🛠️ Technology Stack
+            
+            - **Frontend**: Streamlit
+            - **Backend**: FastAPI
+            - **LLM**: Google Gemini 2.5
+            - **Vector DB**: FAISS
+            - **Agent Framework**: LangChain
             """)
         
         with col2:
-            st.markdown("### ✨ Features")
             st.markdown("""
-            - Real-time processing
-            - Document retrieval
-            - Confidence scoring
-            - Email history
-            - Category classification
-            - Human escalation
+            ### 📁 Document Management
+            
+            Place your policy documents in the `/documents` folder:
+            - PDF files (*.pdf)
+            - Word documents (*.docx)
+            - Text files (*.txt)
+            
+            ### 🚀 Getting Started
+            
+            1. Add documents to `/documents` folder
+            2. Click "Ingest Documents" in sidebar
+            3. Compose an email
+            4. Get AI-generated reply
+            
+            ### 📊 Features
+            
+            - ✅ Real-time processing
+            - ✅ Document retrieval
+            - ✅ Confidence scoring
+            - ✅ Email history
+            - ✅ Category classification
+            - ✅ Human escalation
+            - ✅ Quota exceeded notifications with countdown timer
             """)
 
 if __name__ == "__main__":
