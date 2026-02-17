@@ -166,7 +166,7 @@ print(response.json())
 
 ## 🌐 Live Demo
 
-- **Frontend (Streamlit Cloud)**: [https://ai-email-assistant.streamlit.app](https://agentic-email-assistant.streamlit.app/)
+- **Frontend (Streamlit Cloud)**: [https://agentic-email-assistant.streamlit.app/](https://agentic-email-assistant.streamlit.app/)
 - **Backend API (via ngrok)**: [https://your-tunnel.ngrok-free.dev/docs](https://leana-unsick-mira.ngrok-free.dev) (Contact for current URL if this doesn't work as it changes on restart)
 
 ---
