@@ -6,7 +6,7 @@ from datetime import datetime
 import re
 from datetime import datetime
 import os
-from pathlib import Path
+from config import BACKEND_DOCS_DIR
 
 # Page configuration
 st.set_page_config(
@@ -493,11 +493,10 @@ def get_stats():
         pass
     return None
 
-def list_documents(docs_path="backend/documents"):
+def list_documents():
     """List documents in the documents folder"""
-    docs_dir = Path(docs_path)
-    if docs_dir.exists():
-        return [f.name for f in docs_dir.iterdir() 
+    if BACKEND_DOCS_DIR.exists():
+        return [f.name for f in BACKEND_DOCS_DIR.glob("*") 
                 if f.suffix.lower() in ('.pdf', '.docx', '.txt')]
     return []
 
