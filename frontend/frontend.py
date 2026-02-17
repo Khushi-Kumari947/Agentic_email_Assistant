@@ -18,99 +18,99 @@ st.set_page_config(
 # Get API URL from environment variables
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
-# Custom CSS for better UX
+# Custom CSS for better UX and visibility
 st.markdown("""
 <style>
     /* Import Google Font */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
     * {
         font-family: 'Inter', sans-serif;
     }
     
-    /* Main header styling */
+    /* Main header styling - DARK for visibility */
     .main-header {
-        font-size: 2.2rem;
-        color: #1A1F36;
+        font-size: 2.5rem;
+        color: #1E88E5 !important;
         text-align: center;
         margin-bottom: 2rem;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: -0.02em;
+        background: linear-gradient(135deg, #1E88E5, #1565C0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
-    /* Section headers */
+    /* Section headers - DARK and BOLD */
     .section-header {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #1A1F36;
-        margin-bottom: 1rem;
+        font-size: 1.4rem;
+        font-weight: 700 !important;
+        color: #1A1F36 !important;
+        margin-bottom: 1.2rem;
         padding-bottom: 0.5rem;
-        border-bottom: 2px solid #f0f0f0;
+        border-bottom: 3px solid #1E88E5;
+        letter-spacing: -0.01em;
     }
     
-    /* Form container styling */
-    .form-container {
-        background-color: #ffffff;
-        padding: 2rem;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-        border: 1px solid #f0f0f0;
+    /* Sub-headers */
+    .sub-header {
+        font-size: 1.1rem;
+        font-weight: 600 !important;
+        color: #2C3E50 !important;
+        margin: 1rem 0 0.5rem 0;
+    }
+    
+    /* Form labels - Make them DARK */
+    .stTextInput label, .stTextArea label {
+        font-weight: 600 !important;
+        color: #1A1F36 !important;
+        font-size: 0.95rem !important;
+        margin-bottom: 0.3rem !important;
     }
     
     /* Input field styling */
     .stTextInput input, .stTextArea textarea {
         border-radius: 12px !important;
-        border: 1.5px solid #e0e0e0 !important;
+        border: 2px solid #E0E0E0 !important;
         padding: 0.75rem 1rem !important;
         font-size: 0.95rem !important;
         transition: all 0.2s ease !important;
-        background-color: #fafafa !important;
+        background-color: #FFFFFF !important;
         color: #1A1F36 !important;
-        caret-color: #1E88E5 !important;  /* Makes cursor blue and visible */
+        caret-color: #1E88E5 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
     }
     
     /* Input focus state */
     .stTextInput input:focus, .stTextArea textarea:focus {
         border-color: #1E88E5 !important;
-        box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1) !important;
-        background-color: #ffffff !important;
+        box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.1) !important;
+        background-color: #FFFFFF !important;
         outline: none !important;
-    }
-    
-    /* Input hover state */
-    .stTextInput input:hover, .stTextArea textarea:hover {
-        border-color: #b0b0b0 !important;
-        background-color: #ffffff !important;
     }
     
     /* Placeholder styling */
     input::placeholder, textarea::placeholder {
-        color: #9e9e9e !important;
+        color: #9E9E9E !important;
         font-size: 0.9rem !important;
-        font-style: normal !important;
+        font-style: italic;
         opacity: 0.8 !important;
     }
     
-    /* Label styling */
-    .stTextInput label, .stTextArea label {
-        font-weight: 500 !important;
-        color: #4a4a4a !important;
-        font-size: 0.9rem !important;
-        margin-bottom: 0.25rem !important;
-    }
-    
     /* Required field indicator */
-    .stTextInput label:after, .stTextArea label:after {
+    .stTextInput label:after {
         content: " *";
-        color: #e53e3e;
+        color: #E53E3E;
         font-weight: 600;
+        font-size: 1rem;
     }
     
     /* Optional field indicator */
     .stTextInput:has(input[placeholder*="Optional"]) label:after,
     .stTextArea:has(textarea[placeholder*="Optional"]) label:after {
         content: " (optional)";
-        color: #9e9e9e;
+        color: #757575;
         font-weight: 400;
         font-size: 0.85rem;
     }
@@ -125,22 +125,18 @@ st.markdown("""
         padding: 0.75rem 2rem !important;
         font-size: 1rem !important;
         transition: all 0.2s ease !important;
-        box-shadow: 0 4px 12px rgba(30, 136, 229, 0.2) !important;
+        box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3) !important;
         width: 100%;
     }
     
     .stButton button:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 8px 20px rgba(30, 136, 229, 0.3) !important;
-    }
-    
-    .stButton button:active {
-        transform: translateY(0) !important;
+        box-shadow: 0 8px 20px rgba(30, 136, 229, 0.4) !important;
     }
     
     /* Email preview card */
     .email-preview {
-        background-color: #ffffff;
+        background-color: #F8F9FA;
         padding: 1.5rem;
         border-radius: 16px;
         border-left: 4px solid #1E88E5;
@@ -149,118 +145,122 @@ st.markdown("""
         color: #1A1F36;
         font-size: 0.95rem;
         line-height: 1.6;
-        border: 1px solid #f0f0f0;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        border: 1px solid #E0E0E0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         margin-top: 1rem;
     }
     
     /* Category badges */
     .category-badge {
         display: inline-block;
-        padding: 0.35rem 1rem;
+        padding: 0.4rem 1.2rem;
         border-radius: 30px;
-        font-weight: 500;
-        font-size: 0.85rem;
+        font-weight: 600;
+        font-size: 0.9rem;
         margin-right: 0.75rem;
         margin-bottom: 0.75rem;
         letter-spacing: 0.02em;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     
     .badge-policy {
-        background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+        background: #E3F2FD;
         color: #0D47A1;
-        border: none;
+        border: 1px solid #90CAF9;
     }
     
     .badge-sensitive {
-        background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+        background: #FFEBEE;
         color: #B71C1C;
-        border: none;
+        border: 1px solid #EF9A9A;
     }
     
     .badge-general {
-        background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
+        background: #E8F5E9;
         color: #1B5E20;
-        border: none;
+        border: 1px solid #A5D6A7;
     }
     
     .badge-clarification {
-        background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+        background: #FFF3E0;
         color: #BF360C;
-        border: none;
+        border: 1px solid #FFB74D;
     }
     
     /* Confidence meter */
     .confidence-high {
         color: #1B5E20;
         font-weight: 600;
-        background: #E8F5E8;
-        padding: 0.35rem 1rem;
+        background: #E8F5E9;
+        padding: 0.4rem 1.2rem;
         border-radius: 30px;
         display: inline-block;
+        border: 1px solid #A5D6A7;
     }
     
     .confidence-medium {
         color: #BF360C;
         font-weight: 600;
         background: #FFF3E0;
-        padding: 0.35rem 1rem;
+        padding: 0.4rem 1.2rem;
         border-radius: 30px;
         display: inline-block;
+        border: 1px solid #FFB74D;
     }
     
     .confidence-low {
         color: #B71C1C;
         font-weight: 600;
         background: #FFEBEE;
-        padding: 0.35rem 1rem;
+        padding: 0.4rem 1.2rem;
         border-radius: 30px;
         display: inline-block;
+        border: 1px solid #EF9A9A;
     }
     
     /* Retrieved docs section */
     .retrieved-docs {
-        background-color: #F8F9FA;
+        background-color: #F5F5F5;
         padding: 1rem;
         border-radius: 12px;
-        border-left: 3px solid #FFA000;
+        border-left: 4px solid #FFA000;
         margin: 0.75rem 0;
         color: #1A1F36;
         font-size: 0.9rem;
-        border: 1px solid #f0f0f0;
+        border: 1px solid #E0E0E0;
     }
     
     /* Success message */
     .success-message {
-        background: linear-gradient(135deg, #D4EDDA 0%, #C3E6CB 100%);
+        background-color: #D4EDDA;
         color: #155724;
         padding: 1rem;
         border-radius: 12px;
         font-weight: 500;
         margin: 1rem 0;
-        border: none;
+        border: 1px solid #C3E6CB;
     }
     
     /* Warning message */
     .warning-message {
-        background: linear-gradient(135deg, #FFF3CD 0%, #FFE69C 100%);
+        background-color: #FFF3CD;
         color: #856404;
         padding: 1rem;
         border-radius: 12px;
         font-weight: 500;
         margin: 1rem 0;
-        border: none;
+        border: 1px solid #FFEEBA;
     }
     
     /* Error message */
     .error-message {
-        background: linear-gradient(135deg, #F8D7DA 0%, #F5C6CB 100%);
+        background-color: #F8D7DA;
         color: #721C24;
         padding: 1rem;
         border-radius: 12px;
         font-weight: 500;
         margin: 1rem 0;
-        border: none;
+        border: 1px solid #F5C6CB;
     }
     
     /* Sidebar styling */
@@ -270,11 +270,42 @@ st.markdown("""
     
     .sidebar-header {
         font-size: 1rem;
-        font-weight: 600;
-        color: #1A1F36;
+        font-weight: 700;
+        color: #1E88E5 !important;
         margin: 1.5rem 0 0.75rem 0;
         letter-spacing: 0.02em;
         text-transform: uppercase;
+    }
+    
+    /* Info box for tips */
+    .info-box {
+        background-color: #F0F7FF;
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid #BBDEFB;
+        margin-top: 1.5rem;
+    }
+    
+    .info-box-title {
+        font-weight: 700;
+        color: #0D47A1;
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+    }
+    
+    .info-box-item {
+        color: #1A1F36;
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    
+    .info-box-item:before {
+        content: "•";
+        color: #1E88E5;
+        font-weight: bold;
+        position: absolute;
+        left: 0.5rem;
     }
     
     /* Quota exceeded message */
@@ -288,19 +319,13 @@ st.markdown("""
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
     
-    /* Copy button */
-    .copy-button {
-        background-color: #f0f0f0 !important;
-        color: #1A1F36 !important;
-        border: 1px solid #e0e0e0 !important;
-        border-radius: 8px !important;
-        padding: 0.5rem 1rem !important;
-        font-size: 0.9rem !important;
-        margin-top: 1rem !important;
-    }
-    
-    .copy-button:hover {
-        background-color: #e0e0e0 !important;
+    /* History items */
+    .history-item {
+        background-color: #FFFFFF;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px solid #E0E0E0;
+        margin-bottom: 0.5rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -326,30 +351,8 @@ def format_email_text(text):
     # Handle bullet points
     text = re.sub(r'^\* ', '• ', text, flags=re.MULTILINE)
     text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', text)
-    text = re.sub(r'(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)', r'<strong>\1</strong>', text)
     
-    # Handle numbered lists
-    lines = text.split('\n')
-    formatted_lines = []
-    in_list = False
-    
-    for line in lines:
-        numbered_match = re.match(r'^(\d+\.)\s+(.*)', line)
-        if numbered_match:
-            if not in_list:
-                formatted_lines.append('<ol style="margin-top: 0.5rem; margin-bottom: 0.5rem;">')
-                in_list = True
-            formatted_lines.append(f'<li style="margin-bottom: 0.25rem;">{numbered_match.group(2)}</li>')
-        else:
-            if in_list:
-                formatted_lines.append('</ol>')
-                in_list = False
-            formatted_lines.append(line)
-    
-    if in_list:
-        formatted_lines.append('</ol>')
-    
-    return '\n'.join(formatted_lines)
+    return text
 
 def process_email(email_data):
     """Send email to API for processing"""
@@ -365,66 +368,18 @@ def process_email(email_data):
             return response.json()
         elif response.status_code == 429:
             error_data = response.json().get('detail', {})
-            show_quota_message(error_data)
+            st.error("API quota exceeded. Please try again later.")
             return None
         else:
             st.error(f"Error: {response.text}")
             return None
             
     except requests.exceptions.Timeout:
-        show_quota_message({
-            "error": "quota_exceeded",
-            "message": "Request timed out - likely due to API quota limits",
-            "limit": 20,
-            "model": "gemini-2.5-flash"
-        })
+        st.error("Request timed out. Please try again.")
         return None
     except Exception as e:
-        error_str = str(e).lower()
-        if "429" in error_str or "quota" in error_str or "limit" in error_str:
-            show_quota_message({
-                "error": "quota_exceeded",
-                "message": "API quota exceeded",
-                "limit": 20,
-                "model": "gemini-2.5-flash"
-            })
-        else:
-            st.error(f"Connection error: {str(e)}")
+        st.error(f"Connection error: {str(e)}")
         return None
-
-def show_quota_message(error_data):
-    """Display quota exceeded message"""
-    message = error_data.get('message', 'Daily API limit reached')
-    limit = error_data.get('limit', 20)
-    model = error_data.get('model', 'gemini-2.5-flash')
-    
-    from datetime import datetime, timedelta
-    import pytz
-    
-    pst = pytz.timezone('US/Pacific')
-    now_pst = datetime.now(pst)
-    midnight_pst = now_pst.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
-    time_until_reset = midnight_pst - now_pst
-    hours = int(time_until_reset.total_seconds() // 3600)
-    minutes = int((time_until_reset.total_seconds() % 3600) // 60)
-    
-    st.markdown(f"""
-    <div class="quota-exceeded">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-        <h3 style="margin-bottom: 1rem;">API Quota Exceeded</h3>
-        <p style="margin-bottom: 1.5rem;">{message}</p>
-        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
-            <strong>Daily Limit:</strong> {limit} requests<br>
-            <strong>Model:</strong> {model}
-        </div>
-        <div style="font-size: 1.5rem; font-weight: bold; margin: 1rem 0;">
-            ⏰ Resets in {hours}h {minutes}m
-        </div>
-        <button onclick="window.location.reload()" style="background: white; color: #764ba2; border: none; padding: 0.75rem 2rem; border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
-            🔄 Check Again
-        </button>
-    </div>
-    """, unsafe_allow_html=True)
 
 def get_confidence_class(score):
     """Get CSS class for confidence score"""
@@ -463,7 +418,7 @@ def main():
         st.markdown("---")
         
         # API Status
-        st.markdown('<p class="sidebar-header">🔌 Connection</p>', unsafe_allow_html=True)
+        st.markdown('<p class="sidebar-header">🔌 CONNECTION</p>', unsafe_allow_html=True)
         api_healthy = check_api_health()
         if api_healthy:
             st.success("✅ Connected to backend")
@@ -476,21 +431,17 @@ def main():
         st.markdown("---")
         
         # Navigation
-        st.markdown('<p class="sidebar-header">🧭 Navigation</p>', unsafe_allow_html=True)
+        st.markdown('<p class="sidebar-header">🧭 NAVIGATION</p>', unsafe_allow_html=True)
         page = st.radio(
             "Go to",
             ["📧 Compose Email", "📋 History", "ℹ️ About"],
             label_visibility="collapsed"
         )
-        
-        st.markdown("---")
-        st.caption(f"Connected to: {API_BASE_URL.split('//')[1].split('.')[0] if '//' in API_BASE_URL else 'local'}")
 
     # Main content area
     if page == "📧 Compose Email":
         st.markdown("<h1 class='main-header'>AI Email Assistant</h1>", unsafe_allow_html=True)
         
-        # Create two columns
         col1, col2 = st.columns([1, 1], gap="large")
         
         with col1:
@@ -499,26 +450,26 @@ def main():
             with st.form("email_form"):
                 subject = st.text_input(
                     "Subject",
-                    placeholder="Question about sick leave policy",
+                    placeholder="e.g., Question about sick leave policy",
                     help="Enter the email subject line"
                 )
                 
                 sender = st.text_input(
                     "From",
-                    placeholder="john.doe@company.com",
+                    placeholder="e.g., john.doe@company.com",
                     help="Your email address"
                 )
                 
                 recipient = st.text_input(
                     "To",
-                    placeholder="hr@company.com",
+                    placeholder="e.g., hr@company.com",
                     help="Recipient email address (optional)"
                 )
                 
                 body = st.text_area(
                     "Message",
-                    placeholder="How many sick days do I get per year? Do I need a doctor's note for a single day?",
-                    height=250,
+                    placeholder="e.g., How many sick days do I get per year? Do I need a doctor's note?",
+                    height=200,
                     help="Type your email content here"
                 )
                 
@@ -551,7 +502,7 @@ def main():
                             "response": response
                         })
                         
-                        st.markdown('<div class="success-message">✅ Email processed successfully!</div>', unsafe_allow_html=True)
+                        st.success("✅ Email processed successfully!")
                         
                         with col2:
                             st.markdown('<p class="section-header">📨 Generated Reply</p>', unsafe_allow_html=True)
@@ -577,26 +528,21 @@ def main():
                             
                             # Escalation warning
                             if response.get('requires_human_review'):
-                                st.markdown('<div class="warning-message">🚨 This email requires human review</div>', unsafe_allow_html=True)
+                                st.warning("🚨 This email requires human review")
                             
                             # Clarification question
                             if response.get('clarification_needed') and response.get('clarification_question'):
-                                st.markdown(f'<div class="warning-message">❓ {response["clarification_question"]}</div>', unsafe_allow_html=True)
+                                st.info(f"❓ {response['clarification_question']}")
                             
                             # Draft reply
                             draft_reply = response.get('draft_reply', '')
                             formatted_reply = format_email_text(draft_reply)
                             formatted_reply = formatted_reply.replace('\n', '<br>')
                             
+                            st.markdown("**Draft Reply:**")
                             st.markdown(
                                 f'<div class="email-preview">{formatted_reply}</div>',
                                 unsafe_allow_html=True
-                            )
-                            
-                            st.button(
-                                "📋 Copy to Clipboard",
-                                key="copy_button",
-                                help="Select the text above and press Ctrl+C to copy"
                             )
         
         with col2:
@@ -604,16 +550,14 @@ def main():
                 st.markdown('<p class="section-header">📨 Generated Reply</p>', unsafe_allow_html=True)
                 st.info("👈 Fill out the form and click 'Generate Reply' to see the response here")
                 
-                # Quick tips
+                # Quick tips box
                 st.markdown("""
-                <div style="background-color: #F8F9FA; padding: 1.5rem; border-radius: 12px; margin-top: 1rem;">
-                    <p style="font-weight: 600; margin-bottom: 0.5rem;">💡 Quick Tips</p>
-                    <ul style="color: #4a4a4a; font-size: 0.9rem;">
-                        <li>Ask about policies like leave, WFH, benefits</li>
-                        <li>Include specific details for better answers</li>
-                        <li>Sensitive matters are automatically escalated</li>
-                        <li>Check history for past conversations</li>
-                    </ul>
+                <div class="info-box">
+                    <div class="info-box-title">💡 Quick Tips</div>
+                    <div class="info-box-item">Ask about policies like leave, WFH, benefits</div>
+                    <div class="info-box-item">Include specific details for better answers</div>
+                    <div class="info-box-item">Sensitive matters are automatically escalated</div>
+                    <div class="info-box-item">Check history for past conversations</div>
                 </div>
                 """, unsafe_allow_html=True)
     
@@ -625,39 +569,25 @@ def main():
         else:
             for i, item in enumerate(reversed(st.session_state.email_history[-10:])):
                 with st.expander(f"📧 {item['subject']} - {item['timestamp']}"):
-                    col1, col2 = st.columns(2)
+                    st.markdown(f"**From:** {item['sender']}")
                     
-                    with col1:
-                        st.markdown("**Original Email:**")
-                        st.caption(f"From: {item['sender']}")
-                        st.caption(f"Subject: {item['subject']}")
-                        st.caption(f"Time: {item['timestamp']}")
+                    response = item['response']
+                    category = response.get('category', 'general_inquiry')
+                    confidence = response.get('confidence_score', 0)
                     
-                    with col2:
-                        response = item['response']
-                        category = response.get('category', 'general_inquiry')
-                        confidence = response.get('confidence_score', 0)
-                        
-                        badge_class = get_category_badge(category)
-                        display_name = get_category_display(category)
-                        
-                        st.markdown(
-                            f'<span class="category-badge {badge_class}">{display_name}</span>',
-                            unsafe_allow_html=True
-                        )
-                        
-                        if response.get('requires_human_review'):
-                            st.markdown('<div class="warning-message">⚠️ Required Human Review</div>', unsafe_allow_html=True)
+                    badge_class = get_category_badge(category)
+                    display_name = get_category_display(category)
+                    
+                    st.markdown(f'<span class="category-badge {badge_class}">{display_name}</span>', unsafe_allow_html=True)
+                    
+                    if response.get('requires_human_review'):
+                        st.warning("⚠️ Required Human Review")
                     
                     draft_reply = response.get('draft_reply', '')
                     formatted_reply = format_email_text(draft_reply)
-                    formatted_reply = formatted_reply.replace('\n', '<br>')
                     
                     st.markdown("**Draft Reply:**")
-                    st.markdown(
-                        f'<div class="email-preview">{formatted_reply}</div>',
-                        unsafe_allow_html=True
-                    )
+                    st.markdown(f'<div class="email-preview">{formatted_reply}</div>', unsafe_allow_html=True)
             
             if st.button("Clear History", use_container_width=True):
                 st.session_state.email_history = []
@@ -669,24 +599,14 @@ def main():
         col1, col2 = st.columns(2)
         
         with col1:
+            st.markdown("### 🤖 AI Email Assistant")
             st.markdown("""
-            ### 🤖 AI Email Assistant
-            
             This intelligent assistant helps automate email responses by:
             
             - **Understanding** email intent and category
             - **Searching** company policies using RAG
             - **Generating** professional, context-aware replies
             - **Escalating** sensitive matters to humans
-            """)
-            
-            st.markdown("### 🛠️ Technology Stack")
-            st.markdown("""
-            - **Frontend**: Streamlit
-            - **Backend**: FastAPI
-            - **LLM**: Google Gemini 2.5
-            - **Vector DB**: FAISS
-            - **Agent Framework**: LangChain
             """)
         
         with col2:
@@ -698,15 +618,6 @@ def main():
             - ✅ Email history
             - ✅ Category classification
             - ✅ Human escalation
-            - ✅ Quota exceeded notifications
-            """)
-            
-            st.markdown("### 🚀 Getting Started")
-            st.markdown("""
-            1. Go to **Compose Email**
-            2. Fill in the email details
-            3. Click **Generate Reply**
-            4. View the AI-generated response
             """)
 
 if __name__ == "__main__":
