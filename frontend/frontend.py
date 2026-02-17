@@ -472,7 +472,7 @@ def main():
         
         with col2:
             if not submitted:
-                st.info("👈 Fill form and click 'Get Assistance'")
+                st.info("👈Compose your email and get Assistance at a click!")
                 
                 st.markdown("""
                 <div class="info-box">
@@ -551,7 +551,7 @@ def main():
             ### 🚀 Getting Started
             
             1. Add documents to `/documents` folder
-            2. Click "Ingest Documents" in sidebar
+            2. Click "Ingest Documents" in backend api
             3. Compose an email
             4. Get AI-generated reply
             
