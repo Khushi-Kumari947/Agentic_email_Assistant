@@ -63,15 +63,15 @@ st.markdown("""
         color: inherit !important;
     }
     
-    /* Form labels - BLACK */
+    /* Form labels - RESTORED TO PREVIOUS WORKING STATE */
     .stTextInput label, .stTextArea label {
         font-weight: 600 !important;
-        color: #000000 !important;
+        color: #C3BFDE !important;
         font-size: 1rem !important;
         margin-bottom: 0.3rem !important;
     }
     
-    /* Input fields */
+    /* Input fields - RESTORED TO PREVIOUS WORKING STATE */
     .stTextInput input, .stTextArea textarea {
         border-radius: 8px !important;
         border: 1px solid #CCCCCC !important;
@@ -530,7 +530,7 @@ def main():
         
         with col2:
             if not submitted:
-                st.info("👈 Fill form and click 'Get Assistance'")
+                st.info("👈 Compose your email and click 'Get Assistance'")
                 
                 st.markdown("""
                 <div class="info-box">
