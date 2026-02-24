@@ -30,7 +30,7 @@ __pycache__/
 documents/
 *.pdf
 *.docx
-*.txt
+
 
 # Large data files
 *.zip
