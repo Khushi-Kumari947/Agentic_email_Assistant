@@ -1,8 +1,6 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks
-from pydantic import BaseModel
-from typing import Any, Optional
 import uvicorn
-
+import os
 # Correct import - process_email is now available
 from src.agent.email_agent import process_email
 from src.ingestion import run_ingestion
@@ -81,9 +79,9 @@ async def health_check():
     return {"status": "healthy"}
 
 if __name__ == "__main__":
+    port=int(os.environ.get("PORT",10000))
     uvicorn.run(
         "src.main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True
+        port=port
     )
