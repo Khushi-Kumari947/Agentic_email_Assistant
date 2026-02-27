@@ -7,7 +7,16 @@ from src.config import VECTOR_STORE_PATH, EMBEDDING_MODEL
 
 class VectorStore:
     def __init__(self):
-        self.encoder = SentenceTransformer(EMBEDDING_MODEL)
+        # self.encoder = SentenceTransformer(EMBEDDING_MODEL)
+        try:
+            # Add timeout and retry logic
+            self.encoder = SentenceTransformer(
+                EMBEDDING_MODEL,
+                device='cpu'  # Force CPU
+            )
+        except Exception as e:
+            print(f"CRITICAL: Failed to load embedding model: {e}")
+            raise
         self.index = None
         self.documents = []  # Store original documents with metadata
         self.embedding_dim = self.encoder.get_sentence_embedding_dimension()
