@@ -1,73 +1,41 @@
-import pickle
-import numpy as np
-from typing import List, Dict, Any, Optional
+# src/ingestion/vector_store.py
+import sys
 from sentence_transformers import SentenceTransformer
 import faiss
-from src.config import VECTOR_STORE_PATH, EMBEDDING_MODEL
+import pickle
+import numpy as np
+from src.config import EMBEDDING_MODEL, VECTOR_STORE_PATH
 
 class VectorStore:
     def __init__(self):
-        # self.encoder = SentenceTransformer(EMBEDDING_MODEL)
-        try:
-            # Add timeout and retry logic
-            self.encoder = SentenceTransformer(
-                EMBEDDING_MODEL,
-                device='cpu'  # Force CPU
-            )
-        except Exception as e:
-            print(f"CRITICAL: Failed to load embedding model: {e}")
-            raise
+        """Initialize without loading models"""
+        print("📦 VectorStore.__init__ - creating empty instance", file=sys.stderr)
+        self._encoder = None
         self.index = None
-        self.documents = []  # Store original documents with metadata
-        self.embedding_dim = self.encoder.get_sentence_embedding_dimension()
+        self.documents = []
+        self.embedding_dim = None  # Will be set when encoder loads
+        self.store_path = VECTOR_STORE_PATH
     
-    def create_embeddings(self, texts: List[str]) -> np.ndarray:
-        """Create embeddings for texts"""
-        embeddings = self.encoder.encode(texts, convert_to_numpy=True)
-        return embeddings
+    @property
+    def encoder(self):
+        """Lazy load the encoder only when needed"""
+        if self._encoder is None:
+            print("📦 Loading Sentence Transformer model...", file=sys.stderr)
+            self._encoder = SentenceTransformer(EMBEDDING_MODEL)
+            self.embedding_dim = self._encoder.get_sentence_embedding_dimension()
+            print(f"📦 Model loaded. Embedding dimension: {self.embedding_dim}", file=sys.stderr)
+        return self._encoder
     
-    def build_index(self, chunked_documents: List[Dict[str, Any]]):
-        """Build FAISS index from documents"""
-        texts = [doc["text"] for doc in chunked_documents]
-        embeddings = self.create_embeddings(texts)
-        
-        # Create FAISS index
-        self.index = faiss.IndexFlatL2(self.embedding_dim)
-        self.index.add(embeddings)
-        
-        # Store documents
-        self.documents = chunked_documents
+    def create_embeddings(self, texts):
+        """Create embeddings using the lazy-loaded encoder"""
+        return self.encoder.encode(texts, convert_to_numpy=True)
     
-    def save(self, path: str = VECTOR_STORE_PATH):
-        """Save index and documents to disk"""
-        if self.index is None:
-            raise ValueError("No index to save")
-        
-        # Save FAISS index
-        faiss.write_index(self.index, f"{path}.faiss")
-        
-        # Save documents
-        with open(f"{path}.pkl", "wb") as f:
-            pickle.dump(self.documents, f)
-    
-    def load(self, path: str = VECTOR_STORE_PATH):
-        """Load index and documents from disk"""
-        try:
-            # Load FAISS index
-            self.index = faiss.read_index(f"{path}.faiss")
-            
-            # Load documents
-            with open(f"{path}.pkl", "rb") as f:
-                self.documents = pickle.load(f)
-            
-            return True
-        except:
-            return False
-    
-    def similarity_search(self, query: str, k: int = 3) -> List[Dict[str, Any]]:
+    def similarity_search(self, query, k=3):
         """Search for similar documents"""
         if self.index is None:
-            return []
+            print("📦 Index not loaded, attempting to load...", file=sys.stderr)
+            if not self.load():
+                return []
         
         # Create query embedding
         query_embedding = self.create_embeddings([query])
@@ -81,7 +49,29 @@ class VectorStore:
             if idx != -1 and idx < len(self.documents):
                 results.append({
                     "document": self.documents[idx],
-                    "similarity_score": float(1 / (1 + distances[0][i]))  # Convert distance to similarity
+                    "similarity_score": float(1 / (1 + distances[0][i]))
                 })
         
         return results
+    
+    def save(self):
+        """Save index and documents"""
+        if self.index is None:
+            raise ValueError("No index to save")
+        
+        faiss.write_index(self.index, f"{self.store_path}.faiss")
+        with open(f"{self.store_path}.pkl", "wb") as f:
+            pickle.dump(self.documents, f)
+        print(f"✅ Vector store saved to {self.store_path}", file=sys.stderr)
+    
+    def load(self):
+        """Load index and documents"""
+        try:
+            self.index = faiss.read_index(f"{self.store_path}.faiss")
+            with open(f"{self.store_path}.pkl", "rb") as f:
+                self.documents = pickle.load(f)
+            print(f"✅ Vector store loaded from {self.store_path}", file=sys.stderr)
+            return True
+        except Exception as e:
+            print(f"⚠️ Could not load vector store: {e}", file=sys.stderr)
+            return False
