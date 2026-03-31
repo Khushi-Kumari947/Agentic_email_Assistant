@@ -77,7 +77,6 @@ streamlit run frontend.py
 Access:
 - Frontend: http://localhost:8501
 - Backend API: http://localhost:8000/docs
-- Public API URL: Your ngrok URL
 
 ---
 
