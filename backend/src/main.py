@@ -61,10 +61,9 @@ app = FastAPI(title="AI Email Assistant API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:8501",                    # Local development
-        "https://*.streamlit.app",                   # All Streamlit Cloud apps
-        "https://your-frontend-name.streamlit.app",  # Your specific app (update later)
+        "http://localhost:8501",
     ],
+    allow_origin_regex=r"https://.*\.streamlit\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -127,10 +126,3 @@ async def process_email_endpoint(email: EmailInput):
 async def health_check():
     return {"status": "healthy"}
 
-if __name__ == "__main__":
-    port=int(os.environ.get("PORT",8000))
-    uvicorn.run(
-        "src.main:app",
-        host="0.0.0.0",
-        port=port
-    )
