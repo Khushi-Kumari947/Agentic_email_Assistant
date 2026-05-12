@@ -4,16 +4,18 @@ print("📚 Ingestion module loading...", file=sys.stderr)
 
 from src.ingestion.document_loader import DocumentLoader
 from src.ingestion.vector_store import VectorStore
+from src.ingestion.gdrive_loader import download_from_gdrive
 from src.config import DOCUMENTS_DIR, VECTOR_STORE_PATH
 
-# Create instance WITHOUT loading models
 print("📚 Creating VectorStore instance...", file=sys.stderr)
-vector_store = VectorStore()  # This is now safe - doesn't load models
+vector_store = VectorStore()
 print("📚 VectorStore instance created", file=sys.stderr)
 
 def run_ingestion():
-    """Main ingestion function - reads from DOCUMENTS_DIR"""
+    """Main ingestion function - downloads from GDrive then indexes."""
     try:
+        download_from_gdrive()
+
         print(f"📂 Reading documents from: {DOCUMENTS_DIR}", file=sys.stderr)
         
         loader = DocumentLoader()
@@ -27,10 +29,7 @@ def run_ingestion():
         
         print(f"📄 Found {len(documents)} documents", file=sys.stderr)
         
-        # Force encoder to load now (during ingestion, not during import)
-        if vector_store.encoder is None:
-            print("📦 Loading encoder for ingestion...", file=sys.stderr)
-            _ = vector_store.encoder  # Trigger lazy load
+        _ = vector_store.encoder
         
         chunked_docs = loader.chunk_documents(documents)
         print(f"🔪 Created {len(chunked_docs)} chunks", file=sys.stderr)
@@ -48,5 +47,4 @@ def run_ingestion():
         print(f"❌ Ingestion error: {e}", file=sys.stderr)
         return {"status": "error", "message": str(e)}
 
-# Don't auto-load on startup
 print("📚 Ingestion module loaded (models not loaded yet)", file=sys.stderr)
