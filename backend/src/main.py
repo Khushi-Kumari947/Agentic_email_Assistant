@@ -122,7 +122,10 @@ async def process_email_endpoint(email: EmailInput):
                 status_code=500,
                 detail=f"Error processing email: {str(e)}"
             )
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
+@app.api_route("/", methods=["GET", "HEAD"])
+def health():
+    return {"status": "ok"}
 
+@app.get("/health")
+def health_check():
+    return {"healthy": True}
