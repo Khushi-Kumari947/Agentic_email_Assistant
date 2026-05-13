@@ -1,8 +1,5 @@
-# src/ingestion/vector_store.py
-
 import sys
 from sentence_transformers import SentenceTransformer
-import numpy as np
 from pinecone import Pinecone
 from src.config import (
     EMBEDDING_MODEL,
@@ -10,25 +7,42 @@ from src.config import (
     PINECONE_INDEX_NAME
 )
 
+
 class VectorStore:
     def __init__(self):
-        print("📦 Initializing Pinecone VectorStore...", file=sys.stderr)
+        print(
+            "📦 Initializing Pinecone VectorStore...",
+            file=sys.stderr
+        )
 
         self._encoder = None
         self.embedding_dim = None
 
         # Initialize Pinecone
         self.pc = Pinecone(api_key=PINECONE_API_KEY)
+
         self.index = self.pc.Index(PINECONE_INDEX_NAME)
 
-        print("✅ Pinecone initialized", file=sys.stderr)
+        print(
+            "✅ Pinecone initialized",
+            file=sys.stderr
+        )
 
     @property
     def encoder(self):
-        if self._encoder is None:
-            print("📦 Loading Sentence Transformer model...", file=sys.stderr)
+        """
+        Lazy-load embedding model only when needed.
+        """
 
-            self._encoder = SentenceTransformer(EMBEDDING_MODEL)
+        if self._encoder is None:
+            print(
+                "📦 Loading Sentence Transformer model...",
+                file=sys.stderr
+            )
+
+            self._encoder = SentenceTransformer(
+                EMBEDDING_MODEL
+            )
 
             self.embedding_dim = (
                 self._encoder.get_sentence_embedding_dimension()
@@ -42,12 +56,27 @@ class VectorStore:
         return self._encoder
 
     def create_embeddings(self, texts):
-        return self.encoder.encode(texts, convert_to_numpy=True)
+        """
+        Generate embeddings for given texts.
+        """
+
+        return self.encoder.encode(
+            texts,
+            convert_to_numpy=True
+        )
 
     def build_index(self, chunked_docs):
         """
         Generate embeddings and upload to Pinecone.
         """
+
+        print(
+            "🗑 Clearing old Pinecone vectors...",
+            file=sys.stderr
+        )
+
+        # Delete previous vectors
+        self.index.delete(delete_all=True)
 
         print(
             f"🔨 Uploading {len(chunked_docs)} chunks to Pinecone...",
@@ -71,7 +100,7 @@ class VectorStore:
                 }
             })
 
-        # Upload vectors
+        # Upload vectors to Pinecone
         self.index.upsert(vectors=vectors)
 
         print(
