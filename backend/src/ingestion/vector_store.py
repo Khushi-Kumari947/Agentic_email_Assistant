@@ -1,6 +1,10 @@
+# src/ingestion/vector_store.py
+
 import sys
 from sentence_transformers import SentenceTransformer
+import numpy as np
 from pinecone import Pinecone
+
 from src.config import (
     EMBEDDING_MODEL,
     PINECONE_API_KEY,
@@ -18,10 +22,17 @@ class VectorStore:
         self._encoder = None
         self.embedding_dim = None
 
-        # Initialize Pinecone
-        self.pc = Pinecone(api_key=PINECONE_API_KEY)
+        # Pinecone namespace
+        self.namespace = "default"
 
-        self.index = self.pc.Index(PINECONE_INDEX_NAME)
+        # Initialize Pinecone
+        self.pc = Pinecone(
+            api_key=PINECONE_API_KEY
+        )
+
+        self.index = self.pc.Index(
+            PINECONE_INDEX_NAME
+        )
 
         print(
             "✅ Pinecone initialized",
@@ -30,11 +41,8 @@ class VectorStore:
 
     @property
     def encoder(self):
-        """
-        Lazy-load embedding model only when needed.
-        """
-
         if self._encoder is None:
+
             print(
                 "📦 Loading Sentence Transformer model...",
                 file=sys.stderr
@@ -56,10 +64,6 @@ class VectorStore:
         return self._encoder
 
     def create_embeddings(self, texts):
-        """
-        Generate embeddings for given texts.
-        """
-
         return self.encoder.encode(
             texts,
             convert_to_numpy=True
@@ -75,23 +79,44 @@ class VectorStore:
             file=sys.stderr
         )
 
-        # Delete previous vectors
-        self.index.delete(delete_all=True)
+        # Safely delete old vectors
+        try:
+            self.index.delete(
+                delete_all=True,
+                namespace=self.namespace
+            )
+
+            print(
+                "✅ Old vectors deleted",
+                file=sys.stderr
+            )
+
+        except Exception as e:
+            print(
+                f"⚠️ No existing namespace yet: {e}",
+                file=sys.stderr
+            )
 
         print(
             f"🔨 Uploading {len(chunked_docs)} chunks to Pinecone...",
             file=sys.stderr
         )
 
-        texts = [doc["text"] for doc in chunked_docs]
+        texts = [
+            doc["text"]
+            for doc in chunked_docs
+        ]
 
-        embeddings = self.create_embeddings(texts)
+        embeddings = self.create_embeddings(
+            texts
+        )
 
         vectors = []
 
         for i, (embedding, doc) in enumerate(
             zip(embeddings, chunked_docs)
         ):
+
             vectors.append({
                 "id": str(i),
                 "values": embedding.tolist(),
@@ -101,7 +126,10 @@ class VectorStore:
             })
 
         # Upload vectors to Pinecone
-        self.index.upsert(vectors=vectors)
+        self.index.upsert(
+            vectors=vectors,
+            namespace=self.namespace
+        )
 
         print(
             f"✅ Uploaded {len(vectors)} vectors to Pinecone",
@@ -118,22 +146,28 @@ class VectorStore:
             file=sys.stderr
         )
 
-        query_embedding = self.create_embeddings([query])
+        query_embedding = self.create_embeddings(
+            [query]
+        )
 
         results = self.index.query(
             vector=query_embedding.tolist()[0],
             top_k=k,
-            include_metadata=True
+            include_metadata=True,
+            namespace=self.namespace
         )
 
         formatted_results = []
 
         for match in results["matches"]:
+
             formatted_results.append({
                 "document": {
                     "text": match["metadata"]["text"]
                 },
-                "similarity_score": float(match["score"])
+                "similarity_score": float(
+                    match["score"]
+                )
             })
 
         print(
