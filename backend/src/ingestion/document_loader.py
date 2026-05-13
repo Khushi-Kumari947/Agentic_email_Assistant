@@ -20,7 +20,9 @@ class DocumentLoader:
             reader = PdfReader(file_path)
             text = ""
             for page in reader.pages:
-                text += page.extract_text() + "\n"
+                extracted = page.extract_text()
+                if extracted:
+                    text += extracted + "\n"
             return text
         except Exception as e:
             raise Exception(f"Error loading PDF {file_path}: {str(e)}")
@@ -36,33 +38,69 @@ class DocumentLoader:
         except Exception as e:
             raise Exception(f"Error loading DOCX {file_path}: {str(e)}")
     
+    def load_txt(self, file_path: str) -> str:
+        """Extract text from TXT file"""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except UnicodeDecodeError:
+            # Try with different encoding
+            with open(file_path, 'r', encoding='latin-1') as f:
+                return f.read()
+        except Exception as e:
+            raise Exception(f"Error loading TXT {file_path}: {str(e)}")
+    
     def load_documents(self, directory_path: str) -> List[Dict[str, Any]]:
         """Load all documents from directory"""
         documents = []
         
+        if not os.path.exists(directory_path):
+            print(f"⚠️ Directory does not exist: {directory_path}")
+            return documents
+        
         for filename in os.listdir(directory_path):
             file_path = os.path.join(directory_path, filename)
             
-            if filename.endswith('.pdf'):
-                text = self.load_pdf(file_path)
-                documents.append({
-                    "text": text,
-                    "metadata": {
-                        "source": filename,
-                        "type": "pdf",
-                        "path": file_path
-                    }
-                })
-            elif filename.endswith('.docx'):
-                text = self.load_docx(file_path)
-                documents.append({
-                    "text": text,
-                    "metadata": {
-                        "source": filename,
-                        "type": "docx",
-                        "path": file_path
-                    }
-                })
+            if not os.path.isfile(file_path):
+                continue
+                
+            try:
+                if filename.endswith('.pdf'):
+                    text = self.load_pdf(file_path)
+                    documents.append({
+                        "text": text,
+                        "metadata": {
+                            "source": filename,
+                            "type": "pdf",
+                            "path": file_path
+                        }
+                    })
+                elif filename.endswith('.docx'):
+                    text = self.load_docx(file_path)
+                    documents.append({
+                        "text": text,
+                        "metadata": {
+                            "source": filename,
+                            "type": "docx",
+                            "path": file_path
+                        }
+                    })
+                elif filename.endswith('.txt'):
+                    text = self.load_txt(file_path)
+                    documents.append({
+                        "text": text,
+                        "metadata": {
+                            "source": filename,
+                            "type": "txt",
+                            "path": file_path
+                        }
+                    })
+                else:
+                    print(f"⚠️ Skipping unsupported file type: {filename}")
+                    
+            except Exception as e:
+                print(f"❌ Error processing {filename}: {e}")
+                continue
         
         return documents
     
@@ -71,16 +109,23 @@ class DocumentLoader:
         chunked_docs = []
         
         for doc in documents:
-            chunks = self.text_splitter.split_text(doc["text"])
+            text = doc["text"]
+            if not text or not text.strip():
+                print(f"⚠️ Skipping empty document: {doc['metadata'].get('source', 'Unknown')}")
+                continue
+                
+            chunks = self.text_splitter.split_text(text)
             
             for i, chunk in enumerate(chunks):
-                chunked_docs.append({
-                    "text": chunk,
-                    "metadata": {
-                        **doc["metadata"],
-                        "chunk_id": i,
-                        "total_chunks": len(chunks)
-                    }
-                })
+                if chunk and chunk.strip():
+                    chunked_docs.append({
+                        "text": chunk,
+                        "metadata": {
+                            **doc["metadata"],
+                            "chunk_id": i,
+                            "total_chunks": len(chunks)
+                        }
+                    })
         
+        print(f"📊 Created {len(chunked_docs)} chunks from {len(documents)} documents")
         return chunked_docs

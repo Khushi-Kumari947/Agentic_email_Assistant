@@ -1,16 +1,16 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 import uvicorn
 import os
+import sys
+import traceback
+
 # Correct import - process_email is now available
 from src.agent.email_agent import process_email
 from src.ingestion import run_ingestion
 from src.models import EmailInput, EmailResponse, IngestResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-# At the top of src/main.py
-import sys
-import traceback
-
+# Startup debugging logs
 print("=" * 50, file=sys.stderr)
 print("STARTING FULL APPLICATION", file=sys.stderr)
 print("=" * 50, file=sys.stderr)
@@ -19,6 +19,7 @@ try:
     print("1. Importing config...", file=sys.stderr)
     from src import config
     print(f"   - GOOGLE_API_KEY set: {bool(config.GOOGLE_API_KEY)}", file=sys.stderr)
+    print(f"   - PINECONE_API_KEY set: {bool(config.PINECONE_API_KEY)}", file=sys.stderr)
 except Exception as e:
     print(f"❌ Config import failed: {e}", file=sys.stderr)
     traceback.print_exc(file=sys.stderr)
@@ -55,13 +56,15 @@ print("=" * 50, file=sys.stderr)
 print("ALL IMPORTS SUCCESSFUL", file=sys.stderr)
 print("=" * 50, file=sys.stderr)
 
-# actual code before
+# Create FastAPI app
 app = FastAPI(title="AI Email Assistant API")
 
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:8501",
+        "http://localhost:3000",
     ],
     allow_origin_regex=r"https://.*\.streamlit\.app",
     allow_credentials=True,
@@ -122,10 +125,11 @@ async def process_email_endpoint(email: EmailInput):
                 status_code=500,
                 detail=f"Error processing email: {str(e)}"
             )
-@app.api_route("/", methods=["GET", "HEAD"])
-def health():
-    return {"status": "ok"}
 
 @app.get("/health")
 def health_check():
-    return {"healthy": True}
+    return {"status": "healthy", "service": "AI Email Assistant API"}
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("src.main:app", host="0.0.0.0", port=port, reload=True)

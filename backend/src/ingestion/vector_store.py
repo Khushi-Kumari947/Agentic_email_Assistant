@@ -71,13 +71,9 @@ class VectorStore:
 
     def build_index(self, chunked_docs):
         """
-        Generate embeddings and upload to Pinecone.
+        Generate embeddings and upload to Pinecone with metadata.
         """
-
-        print(
-            "🗑 Clearing old Pinecone vectors...",
-            file=sys.stderr
-        )
+        print("🗑 Clearing old Pinecone vectors...", file=sys.stderr)
 
         # Safely delete old vectors
         try:
@@ -86,10 +82,7 @@ class VectorStore:
                 namespace=self.namespace
             )
 
-            print(
-                "✅ Old vectors deleted",
-                file=sys.stderr
-            )
+            print("✅ Old vectors deleted", file=sys.stderr)
 
         except Exception as e:
             print(
@@ -107,22 +100,30 @@ class VectorStore:
             for doc in chunked_docs
         ]
 
-        embeddings = self.create_embeddings(
-            texts
-        )
+        embeddings = self.create_embeddings(texts)
 
         vectors = []
 
         for i, (embedding, doc) in enumerate(
             zip(embeddings, chunked_docs)
         ):
+            # Build metadata with source information if available
+            metadata = {
+                "text": doc["text"],
+                "chunk_id": i
+            }
+
+            # Add source if available in document metadata
+            if "metadata" in doc and doc["metadata"]:
+                if "source" in doc["metadata"]:
+                    metadata["source"] = doc["metadata"]["source"]
+                if "document_name" in doc["metadata"]:
+                    metadata["document_name"] = doc["metadata"]["document_name"]
 
             vectors.append({
                 "id": str(i),
                 "values": embedding.tolist(),
-                "metadata": {
-                    "text": doc["text"]
-                }
+                "metadata": metadata
             })
 
         # Upload vectors to Pinecone
@@ -140,7 +141,6 @@ class VectorStore:
         """
         Query Pinecone for similar documents.
         """
-
         print(
             f"🔍 Performing similarity search for: {query}",
             file=sys.stderr
@@ -159,14 +159,23 @@ class VectorStore:
 
         formatted_results = []
 
-        for match in results["matches"]:
+        matches = results.get("matches", [])
 
+        for match in matches:
+            metadata = match.get("metadata", {})
+
+            # Build document with metadata for compatibility
             formatted_results.append({
                 "document": {
-                    "text": match["metadata"]["text"]
+                    "text": metadata.get("text", ""),
+                    "metadata": {
+                        "source": metadata.get("source", "Policy Document"),
+                        "chunk_id": metadata.get("chunk_id", 0),
+                        "document_name": metadata.get("document_name", "Unknown")
+                    }
                 },
                 "similarity_score": float(
-                    match["score"]
+                    match.get("score", 0)
                 )
             })
 

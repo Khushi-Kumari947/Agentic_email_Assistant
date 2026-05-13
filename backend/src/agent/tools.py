@@ -14,21 +14,39 @@ def PolicySearch(query: str) -> str:
         results = vector_store.similarity_search(query, k=3)
         
         if not results:
-            return "No relevant policy documents found in the company database."
+            return "No relevant policy documents found in the company database. Please contact HR directly for assistance with your policy question."
         
         formatted_results = []
-        for result in results:
-            doc = result["document"]
-            formatted_results.append(
-                f"[Document: {doc['metadata']['source']}, "
-                f"Relevance: {result['similarity_score']:.2f}]\n"
-                f"Content: {doc['text'][:500]}..."  # Truncate for token limits
-            )
+        for i, result in enumerate(results, 1):
+            # Safely extract document data
+            doc = result.get("document", {})
+            metadata = doc.get("metadata", {})
+            text = doc.get("text", "")
+            score = result.get("similarity_score", 0)
+            
+            # Get source with fallback
+            source = metadata.get("source", f"Document {i}")
+            document_name = metadata.get("document_name", source)
+            
+            if text:
+                formatted_results.append(
+                    f"[Document: {document_name}, Relevance: {score:.2f}]\n"
+                    f"Content: {text[:500]}..."
+                )
+            else:
+                formatted_results.append(
+                    f"[Document: {document_name}, Relevance: {score:.2f}]\n"
+                    f"Content: [No text content available]"
+                )
         
-        return "\n\n---\n\n".join(formatted_results)
+        if formatted_results:
+            return "\n\n---\n\n".join(formatted_results)
+        else:
+            return "No relevant policy information found. Please contact HR directly for assistance."
     
     except Exception as e:
-        return f"Error searching policies: {str(e)}"
+        print(f"❌ PolicySearch error: {e}")
+        return f"I encountered an error while searching policy documents. Please contact HR directly for assistance with your question."
 
 @tool
 def HumanEscalation(reason: str) -> str:
