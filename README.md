@@ -1,246 +1,315 @@
-# 🤖 AI Email Assistant
+# AI Email Assistant
 
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104%2B-green)](https://fastapi.tiangolo.com)
-[![LangChain](https://img.shields.io/badge/LangChain-0.1%2B-orange)](https://langchain.com)
-[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-2.5-yellow)](https://deepmind.google/technologies/gemini/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.31%2B-red)](https://streamlit.io)
-[![ngrok](https://img.shields.io/badge/ngrok-Tunnel-blueviolet)](https://ngrok.com)
-
-An intelligent email assistant that automatically understands and responds to employee inquiries by leveraging company policy documents through **RAG** and **agent-based architecture**.
+An AI-powered email response assistant for employee inquiries. The application reads company policy documents, indexes them in Pinecone, and uses a LangChain agent with Google Gemini to generate professional email replies with confidence scoring, category classification, and human-review flags.
 
 ---
 
-## ✨ Features
+# Live Demo
 
-- **📧 Smart Email Processing**: Automatically analyzes intent and generates context-aware replies
-- **📚 RAG-Based Retrieval**: Searches company policies using semantic similarity for accurate responses
-- **🤖 Agent Reasoning**: Decides when to search policies, escalate to humans, or ask for clarification
-- **🔍 Semantic Search**: FAISS vector store with sentence transformers for fast document retrieval
-- **🏷️ Smart Categorization**: Classifies emails as policy queries, sensitive matters, or general inquiries
-- **⚠️ Intelligent Escalation**: Automatically flags sensitive matters for human review
+## Frontend Application
+https://agentic-email-assistant.streamlit.app/
 
----
+## Backend API
+https://agentic-email-assistant-2.onrender.com
 
-## 🛠️ Tech Stack
-
-| Component | Technology |
-|-----------|------------|
-| **Backend** | FastAPI, LangChain, Google Gemini 2.5 |
-| **Vector DB** | FAISS with Sentence Transformers |
-| **Frontend** | Streamlit |
-| **Tunneling** | ngrok (for exposing local backend) |
-| **Frontend Hosting** | Streamlit Cloud |
+## API Documentation
+https://agentic-email-assistant-2.onrender.com/docs
 
 ---
 
-## 🏗️ Architecture
+# Features
 
-```
-Employee Query → Streamlit Cloud → ngrok Tunnel → Local Backend → LangChain Agent → Policy Search (FAISS) → Gemini LLM → Professional Reply
-                                    ↓                            ↓
-                              Human Escalation              Email Response
-```
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.9+
-- Google Gemini API key ([Get one](https://makersuite.google.com/app/apikey))
-- ngrok account (free) for tunneling ([Sign up](https://dashboard.ngrok.com/signup))
-
-### Local Setup
-
-```bash
-# Clone repository
-git clone https://github.com/yourusername/ai-email-assistant.git
-cd ai-email-assistant
-
-# Backend setup
-cd backend
-cp .env.example .env        # Add your Gemini API key
-pip install -r requirements.txt
-uvicorn src.main:app --reload
-
-# Expose backend with ngrok (new terminal)
-ngrok http 8000
-# Copy the https URL (e.g., https://your-tunnel.ngrok-free.dev)
-
-# Frontend setup (new terminal)
-cd frontend
-pip install -r requirements.txt
-streamlit run frontend.py
-```
-
-Access:
-- Frontend: http://localhost:8501
-- Backend API: http://localhost:8000/docs
+- Process employee email queries through a FastAPI backend
+- Generate professional email draft replies using Google Gemini
+- Perform retrieval-augmented generation (RAG) over company policies
+- Store and query embeddings using Pinecone
+- Ingest policy documents directly from Google Drive
+- Classify responses into:
+  - Policy queries
+  - General inquiries
+  - Sensitive matters
+  - Clarification requests
+- Flag sensitive or low-confidence responses for human review
+- Streamlit frontend with:
+  - Compose email interface
+  - Response history
+  - Backend connection status
 
 ---
 
-## 📁 Project Structure
+# Tech Stack
 
-```
-ai-email-assistant/
-├── backend/                 # FastAPI app
-│   ├── src/
-│   │   ├── agent/          # LangChain agent logic
-│   │   ├── ingestion/      # RAG pipeline
-│   │   ├── main.py         # API endpoints
-│   │   └── config.py       # Configuration
-│   ├── documents/          # Policy files (add your PDFs here)
-│   └── requirements.txt
-├── frontend/                # Streamlit app
+| Area | Technology |
+|---|---|
+| Backend API | FastAPI, Uvicorn, Pydantic |
+| AI Agent | LangChain ReAct Agent |
+| LLM | Google Gemini 2.5 Flash |
+| Embeddings | sentence-transformers/all-MiniLM-L6-v2 |
+| Vector Database | Pinecone |
+| Document Parsing | pypdf, python-docx, TXT |
+| Frontend | Streamlit |
+| File Source | Google Drive via gdown |
+
+---
+
+# Project Structure
+
+```text
+Email_Assistant_Agent/
+│
+├── backend/
+│   ├── Dockerfile
+│   ├── render.yaml
+│   ├── requirements.txt
+│   └── src/
+│       ├── main.py
+│       ├── models.py
+│       ├── config.py
+│       │
+│       ├── agent/
+│       │   ├── email_agent.py
+│       │   └── tools.py
+│       │
+│       ├── ingestion/
+│       │   ├── __init__.py
+│       │   ├── document_loader.py
+│       │   └── vector_store.py
+│       │
+│       └── utils/
+│           └── drive_downloader.py
+│
+├── frontend/
 │   ├── frontend.py
-│   └── requirements.txt    # streamlit, requests only
+│   ├── config.py
+│   └── requirements.txt
+│
 └── README.md
 ```
 
 ---
 
-## 📚 API Endpoints
+# Prerequisites
+
+- Python 3.11 or above
+- Google Gemini API Key
+- Pinecone API Key
+- Pinecone Index
+- Google Drive folder containing policy documents
+
+> The embedding model `sentence-transformers/all-MiniLM-L6-v2` generates **384-dimensional embeddings**. Ensure your Pinecone index is configured with the same dimension.
+
+---
+
+# Environment Variables
+
+Create a `.env` file inside the `backend/` directory.
+
+## Backend
+
+```env
+GOOGLE_API_KEY=your_google_gemini_api_key
+PINECONE_API_KEY=your_pinecone_api_key
+PINECONE_INDEX_NAME=email-assistant
+GDRIVE_FOLDER_ID=your_google_drive_folder_id
+```
+
+## Frontend
+
+```env
+API_BASE_URL=https://agentic-email-assistant-2.onrender.com
+```
+
+---
+
+# Backend Setup
+
+```bash
+cd backend
+
+python -m venv .venv
+
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+
+pip install -r requirements.txt
+
+uvicorn src.main:app --reload
+```
+
+## Backend URLs(Localhost)
+
+| Service | URL |
+|---|---|
+| API Root | http://localhost:8000 |
+| Swagger Docs | http://localhost:8000/docs |
+| Health Check | http://localhost:8000/health |
+
+---
+
+# Frontend Setup
+
+Open a second terminal:
+
+```bash
+cd frontend
+
+python -m venv .venv
+
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+
+pip install -r requirements.txt
+
+streamlit run frontend.py
+```
+
+The Streamlit frontend will typically run at:
+
+```text
+http://localhost:8501
+```
+
+---
+
+# Document Ingestion
+
+1. Upload supported policy files to the configured Google Drive folder
+2. Ensure the backend environment variables are configured correctly
+3. Start the backend server
+4. Trigger ingestion
+
+## Ingestion Request
+
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:8000/ingest
+```
+
+---
+
+# Supported File Formats
+
+- PDF
+- DOCX
+- TXT
+
+---
+
+# Ingestion Workflow
+
+The ingestion pipeline:
+
+1. Downloads files from Google Drive
+2. Stores them in a local `documents/` folder
+3. Extracts text from files
+4. Splits content into chunks
+5. Generates embeddings
+6. Uploads vectors to Pinecone
+
+---
+
+# API Endpoints
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/process-email` | Process email and generate reply |
-| `POST` | `/ingest` | (Admin) Update FAISS from documents |
-| `GET` | `/health` | Health check |
-| `GET` | `/stats` | System statistics |
+|---|---|---|
+| GET | `/` | API status |
+| GET | `/health` | Health check |
+| POST | `/ingest` | Start document ingestion |
+| POST | `/process-email` | Generate email response |
 
-### Example Request
+---
+
+# Process Email Example
+
+## Request
 
 ```json
-POST /process-email
 {
   "subject": "Sick leave policy",
   "body": "How many sick days do I get?",
-  "sender": "employee@company.com"
+  "sender": "employee@company.com",
+  "recipient": "hr@company.com"
 }
 ```
 
-### Example Response
+## Response
 
 ```json
 {
-  "draft_reply": "Subject: Re: Sick leave policy\n\nDear Employee,\n\nYou get 12 paid sick days per year...\n\nBest regards,\nHR Department",
+  "draft_reply": "Subject: Re: Sick leave policy\n\nDear Employee,\n\n...",
   "category": "policy_query",
-  "confidence_score": 0.94
+  "retrieved_docs": [],
+  "confidence_score": 0.85,
+  "requires_human_review": false,
+  "clarification_needed": false,
+  "clarification_question": null
 }
 ```
 
 ---
 
-## 🧪 Sample Tests
+# Deployment Notes
 
-### Test Emails for Different Scenarios
+The backend includes:
 
-| Scenario | Sample Input |
-|----------|--------------|
-| **Policy Query** | `{"subject": "Sick leave policy", "body": "How many sick days do I get?", "sender": "employee@company.com"}` |
-| **Work From Home** | `{"subject": "Remote work", "body": "Can I work from home on Fridays?", "sender": "employee@company.com"}` |
-| **Sensitive Matter** | `{"subject": "Harassment complaint", "body": "I need to report inappropriate behavior", "sender": "employee@company.com"}` |
-| **Benefits Question** | `{"subject": "Health insurance", "body": "Does dental cover root canals?", "sender": "employee@company.com"}` |
-| **Vacation Request** | `{"subject": "Vacation", "body": "How do I request time off?", "sender": "employee@company.com"}` |
+- `Dockerfile`
+- `render.yaml`
 
-### Quick Test Script
+Configure the following environment variables in your deployment platform:
 
-```python
-import requests
+```env
+GOOGLE_API_KEY
+PINECONE_API_KEY
+PINECONE_INDEX_NAME
+GDRIVE_FOLDER_ID
+```
 
-API_URL = "https://your-tunnel.ngrok-free.dev/process-email"
+For Streamlit Cloud deployments:
 
-test_email = {
-    "subject": "Sick leave policy",
-    "body": "How many sick days do I get?",
-    "sender": "test@company.com"
-}
-
-response = requests.post(API_URL, json=test_email)
-print(response.json())
+```env
+API_BASE_URL=https://agentic-email-assistant-2.onrender.com
 ```
 
 ---
 
-## 🌐 Live Demo
+# Troubleshooting
 
-- **Frontend (Streamlit Cloud)**: [https://agentic-email-assistant.streamlit.app/](https://agentic-email-assistant.streamlit.app/)
-- **Backend API (via ngrok)**: [https://your-tunnel.ngrok-free.dev/docs](https://leana-unsick-mira.ngrok-free.dev) (Contact for current URL if this doesn't work as it changes on restart)
+## Frontend Shows "Disconnected"
 
----
+- Ensure the backend server is running
+- Verify `API_BASE_URL` points to the correct backend URL
 
-## 🚢 Deployment
+## No Documents Found During Ingestion
 
-### Backend: Local + ngrok Tunnel
+- Verify `GDRIVE_FOLDER_ID`
+- Check Google Drive folder permissions
 
-Due to **Railway free trial expiration** and limited free tier options for ML-focused backends, the backend is currently hosted locally and exposed via **ngrok**:
+## Pinecone Query Errors
 
-```bash
-# Start backend locally
-cd backend
-uvicorn src.main:app --reload
+Ensure:
 
-# Expose with ngrok
-ngrok http 8000
-# Public URL: https://your-tunnel.ngrok-free.dev
-```
+- Pinecone API key is valid
+- Index name is correct
+- Embedding dimensions match
 
-**Note**: 
-- The ngrok URL changes each time the tunnel is restarted
-- Backend runs on local machine (requires internet and uptime)
-- Perfect for demonstration and development purposes
+## Gemini Quota Errors
 
-### Frontend: Streamlit Cloud
+If Gemini quota limits are exceeded:
 
-The frontend is deployed on **Streamlit Cloud** (free tier):
-
-```bash
-1. Go to share.streamlit.io
-2. Connect GitHub repository
-3. Set main file: frontend/frontend.py
-4. Add environment secret:
-   - Key: `API_BASE_URL`
-   - Value: Current ngrok URL (e.g., `https://your-tunnel.ngrok-free.dev`)
-5. Deploy! 🚀
-```
-
-**Why this setup?**
-- ✅ Railway free trial expired
-- ✅ Render free tier has limitations for ML apps
-- ✅ Streamlit Cloud offers generous free tier for frontend
-- ✅ ngrok provides easy tunneling for local backend
-- ✅ Cost-effective for demonstration
-  
----
-
-## 📊 Performance
-
-| Metric | Target | Current |
-|--------|--------|---------|
-| Response Time | <30s | ~20 |
-| Accuracy | >90% | 94% |
-| Escalation Rate | <15% | 8% |
+- The application surfaces a quota warning
+- The response is automatically flagged for human review
 
 ---
 
-## 🔮 Future Roadmap
+# Future Improvements
 
-- [ ] **Slack/Teams integration** for instant messaging
-- [ ] **Email auto-responder** with IMAP integration
-- [ ] **Analytics dashboard** with usage metrics
-- [ ] **Multi-language support** for global teams
-- [ ] **Cloud deployment** when budget permits
-
----
-
-## ⚠️ Important Notes
-
-- The backend runs locally, so it's only available when your machine is on
-- ngrok URL changes on restart - update Streamlit secrets accordingly
-- Free ngrok has limitations: 40 connections/minute, 4 tunnels/process
-- For production use, consider deploying on a cloud platform with persistent storage
+- Multi-language email support
+- User authentication and role-based access
+- Email sending integration
+- Conversation memory for follow-up emails
+- Admin dashboard for monitoring queries
+- Analytics and reporting system
+- Hybrid search support
+- Better confidence evaluation pipeline
 
 ---
 
-**⭐ If you find this useful, please star the repo!**
