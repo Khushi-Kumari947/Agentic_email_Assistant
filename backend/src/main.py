@@ -116,8 +116,8 @@ async def process_email_endpoint(email: EmailInput):
                 detail={
                     "error": "quota_exceeded",
                     "message": "Daily API quota exceeded. Please try again tomorrow.",
-                    "limit": 20,
-                    "model": "gemini-2.5-flash"
+                    "limit": "500 RPD",
+                    "model": "gemini-3.5-flash-lite"
                 }
             )
         else:
