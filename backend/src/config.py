@@ -6,7 +6,8 @@ load_dotenv()
 
 # Google Gemini Configuration
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.5-flash-lite"   
+# "gemini-2.5-flash"
 
 # Embeddings Configuration
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
